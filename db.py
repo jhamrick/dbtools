@@ -79,7 +79,9 @@ class Table(object):
             index = self.pk
         else:
             index = None
-        data = pd.DataFrame.from_records(rows, columns=cols, index=index)
+        data = pd.DataFrame.from_records(
+            rows, columns=cols, index=index,
+            coerce_float=True)
 
         return data
 
