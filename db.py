@@ -44,7 +44,7 @@ class Table(object):
         if columns is None:
             cols = list(self.columns)
         else:
-            if not hasattr(columns, '__iter__'):
+            if not hasattr(columns, '__index__'):
                 cols = [columns]
             else:
                 cols = list(columns)
@@ -61,7 +61,7 @@ class Table(object):
         if where is not None:
             where_str, where_args = where
             query += " WHERE %s" % where_str
-            if not hasattr(where_args, "__iter__"):
+            if not hasattr(where_args, "__index__"):
                 where_args = (where_args,)
             args = (query, where_args)
         else:
