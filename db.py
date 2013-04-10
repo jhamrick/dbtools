@@ -39,6 +39,89 @@ class Table(object):
         else:
             self.pk = None
 
+    @classmethod
+    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False):
+        args = []
+        
+        for label, dtype in dtypes:
+            # parse the python type into a SQL type
+            if dtype is None:
+                sqltype = "NULL"
+            elif dtype is int or dtype is long:
+                sqltype = "INTEGER"
+            elif dtype is float:
+                sqltype = "REAL"
+            elif dtype is str or dtype is unicode:
+                sqltype = "TEXT"
+            elif dtype is buffer:
+                sqltype = "BLOB"
+            else:
+                raise ValueError("invalid data type: %s"  % dtype)
+
+            # construct the SQL syntax for this column
+            arg = "%s %s" % (label, sqltype)
+            if primary_key is not None and primary_key == label:
+                if sqltype != "INTEGER":
+                    raise ValueError("invalid data type for primary key: %s" % dtype)
+                arg += " PRIMARY KEY"
+                if autoincrement:
+                    arg += " AUTOINCREMENT"
+
+            args.append(arg)
+
+        # connect to the database and create the table
+        conn = sql.connect(db)
+        with conn:
+            cur = conn.cursor()
+            cur.execute("CREATE TABLE %s(%s)" % (name, ', '.join(args)))
+
+        tbl = cls(db, name)
+        return tbl
+
+    def drop(self):
+        conn = sql.connect(self.db)
+        with conn:
+            cur = conn.cursor()
+            cur.execute("DROP TABLE %s" % self.name)
+
+    def insert(self, values):
+        ncol = len(self.columns)
+        cols = list(self.columns)
+        if self.pk is not None:
+            ncol -= 1
+            cols.remove(self.pk)
+        
+        if not hasattr(values, "__index__"):
+            values = [values]
+        elif not hasattr(values[0], "__index__"):
+            values = [values]
+
+        entries = []
+        for vals in values:
+            if isinstance(vals, dict):
+                entry = [vals.get(key, None) for key in cols]
+            elif hasattr(vals, "__index__"):
+                if len(vals) != ncol:
+                    raise ValueError("expected %d values, got %d" % (
+                        ncol, len(vals)))
+                entry = [vals]
+            else:
+                raise ValueError("expected dict or list/tuple, got: %s" % type(vals))
+
+            entries.append(entry)
+
+        qm = ["?"]*ncol
+        if self.pk is not None:
+            qm.insert(self.columns.index(self.pk), 'NULL')
+        qm = ", ".join(qm)
+
+        conn = sql.connect(self.db)
+        with conn:
+            cur = conn.cursor()
+            for entry in entries:
+                cur.execute("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+            
+            
     def select(self, columns=None, where=None):
         # argument parsing
         if columns is None:
