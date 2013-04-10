@@ -6,8 +6,8 @@ import pandas as pd
 class Table(object):
 
     def __init__(self, db, name):
-        self.db = db
-        self.name = name
+        self.db = str(db)
+        self.name = str(name)
 
         conn = sql.connect(self.db)
         with conn:
