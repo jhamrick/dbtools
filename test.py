@@ -195,5 +195,30 @@ class TestTable(object):
         data = self.tbl[::2].as_matrix()
         assert (data == self.idata[:2]).all()
 
+    @with_setup(setup, teardown)
+    def test_slice_name(self):
+        """Slice the 'name' column"""
+        self.insert()
+        data = self.tbl['name'].as_matrix()
+        assert (data == self.idata[:, :1]).all()
 
+    @with_setup(setup, teardown)
+    def test_slice_name_age(self):
+        """Slice the 'name' and 'age' columns"""
+        self.insert()
+        data = self.tbl['name', 'age'].as_matrix()
+        assert (data == self.idata[:, :2]).all()
 
+    @with_setup(setup, teardown)
+    def test_slice_name_height(self):
+        """Slice the 'name' and 'height' columns"""
+        self.insert()
+        data = self.tbl['name', 'height'].as_matrix()
+        assert (data == self.idata[:, [0, 2]]).all()
+
+    @with_setup(setup, teardown)
+    def test_slice_all(self):
+        """Slice all the data"""
+        self.insert()
+        data = self.tbl[:].as_matrix()
+        assert (data == self.idata).all()
