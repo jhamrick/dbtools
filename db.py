@@ -19,17 +19,6 @@ class Table(object):
         self.meta = np.array(rows)
         self.columns = tuple(self.meta[:, 1])
 
-        # parse data types
-        dtype = []
-        for dt in self.meta[:, 2]:
-            if dt == "INTEGER":
-                dtype.append(int)
-            elif dt == "TEXT":
-                dtype.append(str)
-            else:
-                raise ValueError("unhandled dtype: %s" % dt)
-        self.dtype = tuple(dtype)
-
         # parse primary key, if any
         pk = np.nonzero(self.meta[:, 5])[0]
         if len(pk) > 1:
@@ -38,6 +27,17 @@ class Table(object):
             self.pk = self.columns[pk[0]]
         else:
             self.pk = None
+
+        # compute repr based on column names and types
+        args = ["%s %s" % (m[1], m[2]) for m in self.meta]
+        if self.pk is not None:
+            args[self.columns.index(self.pk)] += " PRIMARY KEY"
+        self.repr = "%s(%s)" % (self.name, ", ".join(args))
+
+    def __repr__(self):
+        return self.repr
+    def __str__(self):
+        return self.repr
 
     @classmethod
     def create(cls, db, name, dtypes, primary_key=None, autoincrement=False):
