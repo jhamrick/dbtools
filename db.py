@@ -31,7 +31,7 @@ class Table(object):
         # compute repr based on column names and types
         args = ["%s %s" % (m[1], m[2]) for m in self.meta]
         if self.pk is not None:
-            args[self.columns.index(self.pk)] += " PRIMARY KEY"
+            args[self.columns.index(self.pk)] += " PRIMARY KEY AUTOINCREMENT"
         self.repr = "%s(%s)" % (self.name, ", ".join(args))
 
     def __repr__(self):
@@ -40,7 +40,7 @@ class Table(object):
         return self.repr
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False):
+    def create(cls, db, name, dtypes, primary_key=None):
         args = []
         
         for label, dtype in dtypes:
@@ -63,9 +63,7 @@ class Table(object):
             if primary_key is not None and primary_key == label:
                 if sqltype != "INTEGER":
                     raise ValueError("invalid data type for primary key: %s" % dtype)
-                arg += " PRIMARY KEY"
-                if autoincrement:
-                    arg += " AUTOINCREMENT"
+                arg += " PRIMARY KEY AUTOINCREMENT"
 
             args.append(arg)
 
