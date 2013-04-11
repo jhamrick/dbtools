@@ -211,5 +211,3 @@ class Table(object):
 
         return data
 
-
-tbl = Table("data.db", "Participants")
