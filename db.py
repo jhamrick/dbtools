@@ -91,16 +91,16 @@ class Table(object):
             ncol -= 1
             cols.remove(self.pk)
         
-        if not hasattr(values, "__index__"):
+        if hasattr(values, 'keys') or not hasattr(values, "__iter__"):
             values = [values]
-        elif not hasattr(values[0], "__index__"):
+        elif not hasattr(values[0], "__iter__"):
             values = [values]
 
         entries = []
         for vals in values:
             if isinstance(vals, dict):
                 entry = [vals.get(key, None) for key in cols]
-            elif hasattr(vals, "__index__"):
+            elif hasattr(vals, "__iter__"):
                 if len(vals) != ncol:
                     raise ValueError("expected %d values, got %d" % (
                         ncol, len(vals)))
@@ -127,7 +127,7 @@ class Table(object):
         if columns is None:
             cols = list(self.columns)
         else:
-            if not hasattr(columns, '__index__'):
+            if not hasattr(columns, '__iter__'):
                 cols = [columns]
             else:
                 cols = list(columns)
@@ -144,7 +144,7 @@ class Table(object):
         if where is not None:
             where_str, where_args = where
             query += " WHERE %s" % where_str
-            if not hasattr(where_args, "__index__"):
+            if not hasattr(where_args, "__iter__"):
                 where_args = (where_args,)
             args = (query, where_args)
         else:
