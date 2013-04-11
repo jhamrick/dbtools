@@ -20,6 +20,15 @@ class TestTable(object):
     def teardown(self):
         os.remove("test.db")
 
+    def insert(self):
+        self.idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1],
+            ['Louis Reasoner', 26, 68.0],
+            ['Eva Lu Ator', 29, 67.42]
+        ], dtype='object')
+        self.tbl.insert(self.idata)
+
     @with_setup(setup, teardown)
     def test_create_name(self):
         """Check for correct table name"""
@@ -66,8 +75,53 @@ class TestTable(object):
         self.tbl.insert(66.25)
 
     @with_setup(setup, teardown)
+    @raises(ValueError)
+    def test_insert_shortlist(self):
+        """Insert a list that's too short (should fail)"""
+        self.tbl.insert(['Alyssa P. Hacker', 25])
+
+    @with_setup(setup, teardown)
+    @raises(ValueError)
+    def test_insert_shortlists(self):
+        """Insert a list of lists that are too short (should fail)"""
+        self.tbl.insert([
+            ['Alyssa P. Hacker', 66.25],
+            ['Ben Bitdiddle', 24]
+        ])
+
+    @with_setup(setup, teardown)
+    def test_insert_list(self):
+        """Insert a list"""
+        self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
+        data = self.tbl.select().as_matrix()
+        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        assert (data == idata).all()
+
+    @with_setup(setup, teardown)
+    def test_insert_lists(self):
+        """Insert a list of lists"""
+        self.insert()
+        data = self.tbl.select().as_matrix()
+        assert (data == self.idata).all()
+
+
+    @with_setup(setup, teardown)
+    def test_select_columns(self):
+        """Make sure columns of selected data are correct"""
+        self.insert()
+        data = self.tbl.select()
+        assert (u'id',) + tuple(data.columns) == self.tbl.columns
+
+    @with_setup(setup, teardown)
+    def test_select_index(self):
+        """Make sure the index of selected data is correct"""
+        self.insert()
+        data = self.tbl.select()
+        assert tuple(data.index) == (1, 2, 3, 4)
+
+    @with_setup(setup, teardown)
     def test_insert_dict(self):
-        """Try to insert a dictionary"""
+        """Insert a dictionary"""
         self.tbl.insert({
             'name': 'Alyssa P. Hacker',
             'age': 25,
@@ -79,7 +133,7 @@ class TestTable(object):
 
     @with_setup(setup, teardown)
     def test_insert_dictlist(self):
-        """Try to insert a list of dictionaries"""
+        """Insert a list of dictionaries"""
         self.tbl.insert([
             {
                 'name': 'Alyssa P. Hacker',
@@ -99,66 +153,47 @@ class TestTable(object):
         assert (data == idata).all()
 
     @with_setup(setup, teardown)
-    @raises(ValueError)
-    def test_insert_shortlist(self):
-        """Try to insert a list that's too short (should fail)"""
-        self.tbl.insert(['Alyssa P. Hacker', 25])
+    def test_index_0(self):
+        """Index the zeroth row"""
+        self.insert()
+        data = self.tbl[0].as_matrix()
+        assert (data == self.idata[:0]).all()
+
+    @with_setup(setup, teardown)
+    def test_index_1(self):
+        """Index the first row"""
+        self.insert()
+        data = self.tbl[1].as_matrix()
+        assert (data == self.idata[:1]).all()
+
+    @with_setup(setup, teardown)
+    def test_index_12(self):
+        """Slice the first and second rows"""
+        self.insert()
+        data = self.tbl[1:3].as_matrix()
+        assert (data == self.idata[:2]).all()
+
+    @with_setup(setup, teardown)
+    def test_index_lt_3(self):
+        """Slice up to the third row"""
+        self.insert()
+        data = self.tbl[:3].as_matrix()
+        assert (data == self.idata[:2]).all()
+
+    @with_setup(setup, teardown)
+    def test_index_geq_3(self):
+        """Slice past the third row"""
+        self.insert()
+        data = self.tbl[3:].as_matrix()
+        assert (data == self.idata[2:]).all()
 
     @with_setup(setup, teardown)
     @raises(ValueError)
-    def test_insert_shortlists(self):
-        """Try to insert a list of lists that are too short (should fail)"""
-        self.tbl.insert([
-            ['Alyssa P. Hacker', 66.25],
-            ['Ben Bitdiddle', 24]
-        ])
-
-    @with_setup(setup, teardown)
-    def test_insert_list(self):
-        """Try to insert a list"""
-        self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
-        data = self.tbl.select().as_matrix()
-        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
-        assert (data == idata).all()
-
-    @with_setup(setup, teardown)
-    def test_insert_lists(self):
-        """Try to insert a list of lists"""
-        idata = np.array([
-            ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1],
-            ['Louis Reasoner', 26, 68.0],
-            ['Eva Lu Ator', 29, 67.42]
-        ], dtype='object')
-        self.tbl.insert(idata)
-        data = self.tbl.select().as_matrix()
-        assert (data == idata).all()
-
-    @with_setup(setup, teardown)
-    def test_select_columns(self):
-        """Make sure columns of selected data are correct"""
-        idata = np.array([
-            ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1],
-            ['Louis Reasoner', 26, 68.0],
-            ['Eva Lu Ator', 29, 67.42]
-        ], dtype='object')
-        self.tbl.insert(idata)
-        data = self.tbl.select()
-        assert (u'id',) + tuple(data.columns) == self.tbl.columns
-
-    @with_setup(setup, teardown)
-    def test_select_index(self):
-        """Make sure the index of selected data is correct"""
-        idata = np.array([
-            ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1],
-            ['Louis Reasoner', 26, 68.0],
-            ['Eva Lu Ator', 29, 67.42]
-        ], dtype='object')
-        self.tbl.insert(idata)
-        data = self.tbl.select()
-        assert tuple(data.index) == (1, 2, 3, 4)
+    def test_index_alternate(self):
+        """Slice every other row (should fail)"""
+        self.insert()
+        data = self.tbl[::2].as_matrix()
+        assert (data == self.idata[:2]).all()
 
 
 
