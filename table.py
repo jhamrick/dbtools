@@ -20,18 +20,19 @@ class Table(object):
         self.columns = tuple(self.meta[:, 1])
 
         # parse primary key, if any
-        pk = np.nonzero(self.meta[:, 5])[0]
-        if len(pk) > 1:
-            raise ValueError("more than one primary key: %s" % pk)
-        elif len(pk) == 1:
-            self.pk = self.columns[pk[0]]
+        primary_key = np.nonzero(self.meta[:, 5])[0]
+        if len(primary_key) > 1:
+            raise ValueError("more than one primary key: %s" % primary_key)
+        elif len(primary_key) == 1:
+            self.primary_key = self.columns[primary_key[0]]
         else:
-            self.pk = None
+            self.primary_key = None
 
         # compute repr based on column names and types
         args = ["%s %s" % (m[1], m[2]) for m in self.meta]
-        if self.pk is not None:
-            args[self.columns.index(self.pk)] += " PRIMARY KEY AUTOINCREMENT"
+        if self.primary_key is not None:
+            idx = self.columns.index(self.primary_key)
+            args[idx] += " PRIMARY KEY AUTOINCREMENT"
         self.repr = "%s(%s)" % (self.name, ", ".join(args))
 
     def __repr__(self):
@@ -97,8 +98,8 @@ class Table(object):
         # find the columns, excluding the primary key, that we need to
         # insert values for
         cols = list(self.columns)
-        if self.pk is not None:
-            cols.remove(self.pk)
+        if self.primary_key is not None:
+            cols.remove(self.primary_key)
         ncol = len(cols)
 
         # extract the entries from the values that were given
@@ -119,8 +120,8 @@ class Table(object):
 
         # target string of NULL and question marks
         qm = ["?"]*ncol
-        if self.pk is not None:
-            qm.insert(self.columns.index(self.pk), 'NULL')
+        if self.primary_key is not None:
+            qm.insert(self.columns.index(self.primary_key), 'NULL')
         qm = ", ".join(qm)
 
         # perform the insertion
@@ -143,8 +144,8 @@ class Table(object):
 
         # select primary key even if not given, so we can use the
         # correct index later
-        if self.pk not in cols:
-            cols.insert(0, self.pk)
+        if self.primary_key not in cols:
+            cols.insert(0, self.primary_key)
         sel = ",".join(cols)
 
         # base query
@@ -167,8 +168,8 @@ class Table(object):
             rows = cur.fetchall()
 
         # now we need to parse the result into a DataFrame
-        if self.pk in cols:
-            index = self.pk
+        if self.primary_key in cols:
+            index = self.primary_key
         else:
             index = None
         data = pd.DataFrame.from_records(
@@ -180,25 +181,26 @@ class Table(object):
     def __getitem__(self, key):
         if isinstance(key, int):
             # select a row
-            if self.pk is None:
+            if self.primary_key is None:
                 raise ValueError("no primary key column")
-            data = self.select(where=("%s=?" % self.pk, key))
+            data = self.select(where=("%s=?" % self.primary_key, key))
 
         elif isinstance(key, slice):
             # select multiple rows
-            if self.pk is None:
+            if self.primary_key is None:
                 raise ValueError("no primary key column")
             if key.step not in (None, 1):
                 raise ValueError("cannot handle step size > 1")
             if key.start is None and key.stop is None:
                 where = None
             elif key.start is None:
-                where = ("%s<?" % self.pk, key.stop)
+                where = ("%s<?" % self.primary_key, key.stop)
             elif key.stop is None:
-                where = ("%s>=?" % self.pk, key.start)
+                where = ("%s>=?" % self.primary_key, key.start)
             else:
-                where = ("%s<? AND %s>=?" % (self.pk, self.pk),
-                         (key.stop, key.start))
+                where = ("%s<? AND %s>=?" % (
+                    self.primary_key, self.primary_key),
+                    (key.stop, key.start))
             data = self.select(where=where)
 
         elif isinstance(key, str):
