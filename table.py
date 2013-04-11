@@ -36,13 +36,14 @@ class Table(object):
 
     def __repr__(self):
         return self.repr
+
     def __str__(self):
         return self.repr
 
     @classmethod
     def create(cls, db, name, dtypes, primary_key=None):
         args = []
-        
+
         for label, dtype in dtypes:
             # parse the python type into a SQL type
             if dtype is None:
@@ -56,13 +57,14 @@ class Table(object):
             elif dtype is buffer:
                 sqltype = "BLOB"
             else:
-                raise ValueError("invalid data type: %s"  % dtype)
+                raise ValueError("invalid data type: %s" % dtype)
 
             # construct the SQL syntax for this column
             arg = "%s %s" % (label, sqltype)
             if primary_key is not None and primary_key == label:
                 if sqltype != "INTEGER":
-                    raise ValueError("invalid data type for primary key: %s" % dtype)
+                    raise ValueError(
+                        "invalid data type for primary key: %s" % dtype)
                 arg += " PRIMARY KEY AUTOINCREMENT"
 
             args.append(arg)
@@ -83,8 +85,8 @@ class Table(object):
             cur.execute("DROP TABLE %s" % self.name)
 
     def insert(self, values=None):
-        
-        # argument parsing -- `values` should be a list of sequences        
+
+        # argument parsing -- `values` should be a list of sequences
         if values is None:
             values = {}
         if hasattr(values, 'keys') or not hasattr(values, "__iter__"):
@@ -110,7 +112,8 @@ class Table(object):
                         ncol, len(vals)))
                 entry = [vals]
             else:
-                raise ValueError("expected dict or list/tuple, got: %s" % type(vals))
+                raise ValueError(
+                    "expected dict or list/tuple, got: %s" % type(vals))
 
             entries.append(entry)
 
@@ -125,9 +128,9 @@ class Table(object):
         with conn:
             cur = conn.cursor()
             for entry in entries:
-                cur.execute("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
-            
-            
+                cur.execute(
+                    "INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+
     def select(self, columns=None, where=None):
         # argument parsing
         if columns is None:
@@ -210,4 +213,3 @@ class Table(object):
             raise ValueError("invalid key: %s" % key)
 
         return data
-
