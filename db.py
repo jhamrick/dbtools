@@ -82,18 +82,24 @@ class Table(object):
             cur = conn.cursor()
             cur.execute("DROP TABLE %s" % self.name)
 
-    def insert(self, values):
-        ncol = len(self.columns)
-        cols = list(self.columns)
-        if self.pk is not None:
-            ncol -= 1
-            cols.remove(self.pk)
+    def insert(self, values=None):
         
+        # argument parsing -- `values` should be a list of sequences        
+        if values is None:
+            values = {}
         if hasattr(values, 'keys') or not hasattr(values, "__iter__"):
             values = [values]
         elif not hasattr(values[0], "__iter__"):
             values = [values]
 
+        # find the columns, excluding the primary key, that we need to
+        # insert values for
+        cols = list(self.columns)
+        if self.pk is not None:
+            cols.remove(self.pk)
+        ncol = len(cols)
+
+        # extract the entries from the values that were given
         entries = []
         for vals in values:
             if isinstance(vals, dict):
@@ -108,11 +114,13 @@ class Table(object):
 
             entries.append(entry)
 
+        # target string of NULL and question marks
         qm = ["?"]*ncol
         if self.pk is not None:
             qm.insert(self.columns.index(self.pk), 'NULL')
         qm = ", ".join(qm)
 
+        # perform the insertion
         conn = sql.connect(self.db)
         with conn:
             cur = conn.cursor()
