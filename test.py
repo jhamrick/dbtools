@@ -1,6 +1,7 @@
 import os
-from nose.tools import with_setup
+from nose.tools import with_setup, raises
 from table import Table
+from sqlite3 import OperationalError
 
 
 class TestTable(object):
@@ -28,3 +29,9 @@ class TestTable(object):
     @with_setup(setup, teardown)
     def test_create_pk(self):
         assert self.tbl.pk == 'id'
+
+    @with_setup(setup, teardown)
+    @raises(OperationalError)
+    def test_drop(self):
+        self.tbl.drop()
+        self.tbl.select()
