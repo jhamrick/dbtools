@@ -1,4 +1,5 @@
 import os
+import numpy as np
 from nose.tools import with_setup, raises
 from table import Table
 from sqlite3 import OperationalError
@@ -72,6 +73,9 @@ class TestTable(object):
             'age': 25,
             'height': 66.25
         })
+        data = self.tbl.select().as_matrix()
+        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        assert (data == idata).all()
 
     @with_setup(setup, teardown)
     def test_insert_dictlist(self):
@@ -87,6 +91,12 @@ class TestTable(object):
                 'age': 24,
                 'height': 70.1
             }])
+        data = self.tbl.select().as_matrix()
+        idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1]],
+            dtype='object')
+        assert (data == idata).all()
 
     @with_setup(setup, teardown)
     @raises(ValueError)
@@ -105,13 +115,50 @@ class TestTable(object):
 
     @with_setup(setup, teardown)
     def test_insert_list(self):
+        """Try to insert a list"""
         self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
+        data = self.tbl.select().as_matrix()
+        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        assert (data == idata).all()
 
     @with_setup(setup, teardown)
     def test_insert_lists(self):
-        self.tbl.insert([
+        """Try to insert a list of lists"""
+        idata = np.array([
             ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1]
-        ])
+            ['Ben Bitdiddle', 24, 70.1],
+            ['Louis Reasoner', 26, 68.0],
+            ['Eva Lu Ator', 29, 67.42]
+        ], dtype='object')
+        self.tbl.insert(idata)
+        data = self.tbl.select().as_matrix()
+        assert (data == idata).all()
 
-    
+    @with_setup(setup, teardown)
+    def test_select_columns(self):
+        """Make sure columns of selected data are correct"""
+        idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1],
+            ['Louis Reasoner', 26, 68.0],
+            ['Eva Lu Ator', 29, 67.42]
+        ], dtype='object')
+        self.tbl.insert(idata)
+        data = self.tbl.select()
+        assert (u'id',) + tuple(data.columns) == self.tbl.columns
+
+    @with_setup(setup, teardown)
+    def test_select_index(self):
+        """Make sure the index of selected data is correct"""
+        idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1],
+            ['Louis Reasoner', 26, 68.0],
+            ['Eva Lu Ator', 29, 67.42]
+        ], dtype='object')
+        self.tbl.insert(idata)
+        data = self.tbl.select()
+        assert tuple(data.index) == (1, 2, 3, 4)
+
+
+
