@@ -104,13 +104,13 @@ class Table(object):
         # extract the entries from the values that were given
         entries = []
         for vals in values:
-            if isinstance(vals, dict):
-                entry = [vals.get(key, None) for key in cols]
+            if hasattr(vals, 'keys'):
+                entry = tuple([vals.get(key, None) for key in cols])
             elif hasattr(vals, "__iter__"):
                 if len(vals) != ncol:
                     raise ValueError("expected %d values, got %d" % (
                         ncol, len(vals)))
-                entry = [vals]
+                entry = tuple(vals)
             else:
                 raise ValueError(
                     "expected dict or list/tuple, got: %s" % type(vals))
