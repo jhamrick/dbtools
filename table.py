@@ -15,23 +15,30 @@ class Table(object):
         """Create a table called `name` in the database `db`.
 
         Parameters
+        ----------
+        db : string
+            Path to the SQLite database.
 
-            db: path to the SQLite database
+        name : string
+            Name of the desired table.
 
-            name: name of the desired table
+        dtypes : list of 2-tuples
+            Each tuple corresponds a desired column and has the format
+            (column name, data type).
 
-            dtypes: list of 2-tuples, where each tuple corresponds a
-            desired column and has the format (column name, data type).
+        primary_key : string (default=None)
+            Name of the primary key column. If None, no primary key is
+            set.
 
-            primary_key: (default=None) name of the primary key
-            column. If None, no primary key is set.
+        autoincrement : bool (default=False)
+            Set the primary key column to automatically increment.
 
-            autoincrement: (default=False) set the primary key column to
-            automatically increment.
+        verbose : bool (default=False)
+            Print out SQL command information.
 
-            verbose: (default=False) print out SQL command information.
-
-        Returns: Table object
+        Returns
+        -------
+        Table object
 
         """
 
@@ -80,12 +87,15 @@ class Table(object):
         """Create an interface to the table `name` in the database `db`.
 
         Parameters
+        ----------
+        db : (string)
+            The path to the SQLite database.
 
-            db: the path to the SQLite database
+        name : (string)
+            The name of the table in the database.
 
-            name: the name of the table in the database
-
-            verbose: (default=False) print out SQL command information
+        verbose : bool (default=False)
+            Print out SQL command information.
 
         """
 
@@ -222,6 +232,35 @@ class Table(object):
                 cur.execute(*cmd)
 
     def select(self, columns=None, where=None):
+        """Select data from the table.
+
+        Parameters
+        ----------
+        columns : (default=None)
+            The column names to select. If None, all columns are
+            selected. Can be either a single value (string) or a list of
+            strings.
+
+        where : (default=None)
+            Additional filtering to perform on the data akin to the
+            'WHERE' SQL statement, e.g.:
+
+            where="age=25"
+
+            If you need to pass in variable arguments, use question
+            marks, e.g.:
+
+            where=("age=?", 25)
+            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+
+        Returns
+        -------
+        A pandas DataFrame containing the queried data. Column names
+        correspond to the table column names, and if there is a primary
+        key column, it will be used as the index.
+
+        """
+
         # argument parsing
         if columns is None:
             cols = list(self.columns)
@@ -276,6 +315,34 @@ class Table(object):
         return data
 
     def __getitem__(self, key):
+        """Select data from the table.
+
+        This method wraps around `self.select` in a few ways.
+
+        1. If a string is given, the column with that name is
+        selected. For example:
+
+            table['name']
+
+        2. If a list of strings is given, the columns with those names
+        are selected. For example:
+
+            table['name', 'age']
+
+        3. If the table has an autoincrementing primary key, you can use
+        integer indexing and slicing syntax to select rows by their
+        primary keys. For example:
+
+            table[0]
+            table[:5]
+            table[7:]
+
+        Returns
+        -------
+        The output of `self.select` called as described above.
+
+        """
+
         if isinstance(key, int):
             # select a row
             if not self.autoincrement:
