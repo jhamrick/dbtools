@@ -120,7 +120,7 @@ class Table(object):
         # find the columns, excluding the primary key, that we need to
         # insert values for
         cols = list(self.columns)
-        if self.primary_key is not None:
+        if self.autoincrement:
             cols.remove(self.primary_key)
         ncol = len(cols)
 
@@ -142,7 +142,7 @@ class Table(object):
 
         # target string of NULL and question marks
         qm = ["?"]*ncol
-        if self.primary_key is not None:
+        if self.autoincrement:
             qm.insert(self.columns.index(self.primary_key), 'NULL')
         qm = ", ".join(qm)
 
@@ -168,7 +168,7 @@ class Table(object):
 
         # select primary key even if not given, so we can use the
         # correct index later
-        if self.primary_key not in cols:
+        if self.primary_key is not None and self.primary_key not in cols:
             cols.insert(0, self.primary_key)
         sel = ",".join(cols)
 
@@ -208,26 +208,30 @@ class Table(object):
     def __getitem__(self, key):
         if isinstance(key, int):
             # select a row
-            if self.primary_key is None:
-                raise ValueError("no primary key column")
+            if not self.autoincrement:
+                raise ValueError("no autoincrementing primary key column")
             data = self.select(where=("%s=?" % self.primary_key, key))
 
         elif isinstance(key, slice):
             # select multiple rows
-            if self.primary_key is None:
-                raise ValueError("no primary key column")
-            if key.step not in (None, 1):
-                raise ValueError("cannot handle step size > 1")
-            if key.start is None and key.stop is None:
+            if (key.start is None and
+                    key.stop is None and
+                    key.step in (None, 1)):
                 where = None
-            elif key.start is None:
-                where = ("%s<?" % self.primary_key, key.stop)
-            elif key.stop is None:
-                where = ("%s>=?" % self.primary_key, key.start)
+
             else:
-                where = ("%s<? AND %s>=?" % (
-                    self.primary_key, self.primary_key),
-                    (key.stop, key.start))
+                if not self.autoincrement:
+                    raise ValueError("no autoincrementing primary key column")
+                if key.step not in (None, 1):
+                    raise ValueError("cannot handle step size > 1")
+                elif key.start is None:
+                    where = ("%s<?" % self.primary_key, key.stop)
+                elif key.stop is None:
+                    where = ("%s>=?" % self.primary_key, key.start)
+                else:
+                    where = ("%s<? AND %s>=?" % (
+                        self.primary_key, self.primary_key),
+                        (key.stop, key.start))
             data = self.select(where=where)
 
         elif isinstance(key, str):
