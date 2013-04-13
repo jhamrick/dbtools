@@ -9,72 +9,6 @@ class Table(object):
 
     """
 
-    def __init__(self, db, name, verbose=False):
-        """Create an interface to the table `name` in the database `db`.
-
-        Parameters
-
-            db: the path to the SQLite database
-
-            name: the name of the table in the database
-
-            verbose: (default=False) print out SQL command information
-
-        """
-
-        # save the parameters
-        self.db = str(db)
-        self.name = str(name)
-        self.verbose = bool(verbose)
-
-        # query the database for information about the table
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cur.execute("SELECT sql FROM sqlite_master "
-                        "WHERE tbl_name='%s' and type='table'" % name)
-            info = cur.fetchall()
-
-        # parse the response -- it will look like 'CREATE TABLE
-        # name(col1 TYPE, col2 TYPE, ...)'
-        args = re.match("([^\(]*)\((.*)\)", info[0][0]).groups()[1]
-
-        # compute repr string
-        self.repr = "%s(%s)" % (self.name, args)
-
-        # get the column names
-        cols = args.split(", ")
-        self.columns = tuple([x.split(" ")[0] for x in cols])
-
-        # parse primary key, if any
-        pk = [x.split(" ", 1)[1].find("PRIMARY KEY") > -1 for x in cols]
-        primary_key = np.nonzero(pk)[0]
-        if len(primary_key) > 1:
-            raise ValueError("more than one primary key: %s" % primary_key)
-        elif len(primary_key) == 1:
-            self.primary_key = self.columns[primary_key[0]]
-        else:
-            self.primary_key = None
-
-        # parse autoincrement, if applicable
-        ai = [x.split(" ", 1)[1].find("AUTOINCREMENT") > -1 for x in cols]
-        autoincrement = np.nonzero(ai)[0]
-        if len(autoincrement) > 1:
-            raise ValueError("more than one autoincrementing "
-                             "column: %s" % autoincrement)
-        elif self.primary_key is not None and len(autoincrement) == 1:
-            if self.primary_key != self.columns[autoincrement[0]]:
-                raise ValueError("autoincrement is different from primary key")
-            self.autoincrement = True
-        else:
-            self.autoincrement = False
-
-    def __repr__(self):
-        return self.repr
-
-    def __str__(self):
-        return self.repr
-
     @classmethod
     def create(cls, db, name, dtypes, primary_key=None,
                autoincrement=False, verbose=False):
@@ -141,6 +75,66 @@ class Table(object):
 
         tbl = cls(db, name, verbose=verbose)
         return tbl
+
+    def __init__(self, db, name, verbose=False):
+        """Create an interface to the table `name` in the database `db`.
+
+        Parameters
+
+            db: the path to the SQLite database
+
+            name: the name of the table in the database
+
+            verbose: (default=False) print out SQL command information
+
+        """
+
+        # save the parameters
+        self.db = str(db)
+        self.name = str(name)
+        self.verbose = bool(verbose)
+
+        # query the database for information about the table
+        conn = sql.connect(self.db)
+        with conn:
+            cur = conn.cursor()
+            cur.execute("SELECT sql FROM sqlite_master "
+                        "WHERE tbl_name='%s' and type='table'" % name)
+            info = cur.fetchall()
+
+        # parse the response -- it will look like 'CREATE TABLE
+        # name(col1 TYPE, col2 TYPE, ...)'
+        args = re.match("([^\(]*)\((.*)\)", info[0][0]).groups()[1]
+
+        # compute repr string
+        self.repr = "%s(%s)" % (self.name, args)
+
+        # get the column names
+        cols = args.split(", ")
+        self.columns = tuple([x.split(" ")[0] for x in cols])
+
+        # parse primary key, if any
+        pk = [x.split(" ", 1)[1].find("PRIMARY KEY") > -1 for x in cols]
+        primary_key = np.nonzero(pk)[0]
+        if len(primary_key) > 1:
+            raise ValueError("more than one primary key: %s" % primary_key)
+        elif len(primary_key) == 1:
+            self.primary_key = self.columns[primary_key[0]]
+        else:
+            self.primary_key = None
+
+        # parse autoincrement, if applicable
+        ai = [x.split(" ", 1)[1].find("AUTOINCREMENT") > -1 for x in cols]
+        autoincrement = np.nonzero(ai)[0]
+        if len(autoincrement) > 1:
+            raise ValueError("more than one autoincrementing "
+                             "column: %s" % autoincrement)
+        elif self.primary_key is not None and len(autoincrement) == 1:
+            if self.primary_key != self.columns[autoincrement[0]]:
+                raise ValueError("autoincrement is different from primary key")
+            self.autoincrement = True
+        else:
+            self.autoincrement = False
 
     def drop(self):
         """Drop the table from its database.
@@ -317,3 +311,9 @@ class Table(object):
             raise ValueError("invalid key: %s" % key)
 
         return data
+
+    def __repr__(self):
+        return self.repr
+
+    def __str__(self):
+        return self.repr
