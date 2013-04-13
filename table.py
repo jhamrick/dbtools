@@ -43,7 +43,8 @@ class Table(object):
         return self.repr
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False, verbose=False):
+    def create(cls, db, name, dtypes, primary_key=None,
+               autoincrement=False, verbose=False):
         args = []
 
         for label, dtype in dtypes:
