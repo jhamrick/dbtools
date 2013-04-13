@@ -241,11 +241,16 @@ class Table(object):
         query = "SELECT %s FROM %s" % (sel, self.name)
         # add a selection filter, if specified
         if where is not None:
+            if not hasattr(where, '__iter__'):
+                where = (where, None)
             where_str, where_args = where
             query += " WHERE %s" % where_str
-            if not hasattr(where_args, "__iter__"):
-                where_args = (where_args,)
-            cmd = (query, where_args)
+            if where_args is None:
+                cmd = (query,)
+            else:
+                if not hasattr(where_args, "__iter__"):
+                    where_args = (where_args,)
+                cmd = (query, where_args)
         else:
             cmd = (query,)
 

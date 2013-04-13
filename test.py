@@ -116,6 +116,24 @@ class TestTable(object):
         data = self.tbl.select()
         assert tuple(data.columns) == self.tbl.columns
 
+    def test_select_where_args(self):
+        """Check where selection with one argument"""
+        self.insert()
+        data = self.tbl.select(where=("age=?", 25))
+        assert self.check_equal(self.idata[[0]], data)
+
+    def test_select_where_args2(self):
+        """Check where selection with list of arguments"""
+        self.insert()
+        data = self.tbl.select(where=("age=?", (25,)))
+        assert self.check_equal(self.idata[[0]], data)
+
+    def test_select_where_no_args(self):
+        """Check where selection with no arguments"""
+        self.insert()
+        data = self.tbl.select(where="age=25")
+        assert self.check_equal(self.idata[[0]], data)
+
     def test_insert_dict(self):
         """Insert a dictionary"""
         self.tbl.insert({
