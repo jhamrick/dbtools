@@ -5,9 +5,10 @@ import pandas as pd
 
 class Table(object):
 
-    def __init__(self, db, name):
+    def __init__(self, db, name, verbose=False):
         self.db = str(db)
         self.name = str(name)
+        self.verbose = bool(verbose)
 
         conn = sql.connect(self.db)
         with conn:
@@ -42,7 +43,7 @@ class Table(object):
         return self.repr
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False):
+    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False, verbose=False):
         args = []
 
         for label, dtype in dtypes:
@@ -76,7 +77,10 @@ class Table(object):
         conn = sql.connect(db)
         with conn:
             cur = conn.cursor()
-            cur.execute("CREATE TABLE %s(%s)" % (name, ', '.join(args)))
+            cmd = "CREATE TABLE %s(%s)" % (name, ', '.join(args))
+            if verbose:
+                print cmd
+            cur.execute(cmd)
 
         tbl = cls(db, name)
         return tbl
@@ -85,7 +89,10 @@ class Table(object):
         conn = sql.connect(self.db)
         with conn:
             cur = conn.cursor()
-            cur.execute("DROP TABLE %s" % self.name)
+            cmd = "DROP TABLE %s" % self.name
+            if self.verbose:
+                print cmd
+            cur.execute(cmd)
 
     def insert(self, values=None):
 
@@ -131,8 +138,10 @@ class Table(object):
         with conn:
             cur = conn.cursor()
             for entry in entries:
-                cur.execute(
-                    "INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+                cmd = ("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+                if self.verbose:
+                    print ", ".join([str(x) for x in cmd])
+                cur.execute(*cmd)
 
     def select(self, columns=None, where=None):
         # argument parsing
@@ -158,15 +167,18 @@ class Table(object):
             query += " WHERE %s" % where_str
             if not hasattr(where_args, "__iter__"):
                 where_args = (where_args,)
-            args = (query, where_args)
+            cmd = (query, where_args)
         else:
-            args = (query,)
+            cmd = (query,)
+
+        if self.verbose:
+            print ", ".join([str(x) for x in cmd])
 
         # connect to the database and execute the query
         conn = sql.connect(self.db)
         with conn:
             cur = conn.cursor()
-            cur.execute(*args)
+            cur.execute(*cmd)
             rows = cur.fetchall()
 
         # now we need to parse the result into a DataFrame
