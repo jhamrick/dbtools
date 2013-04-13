@@ -42,7 +42,7 @@ class Table(object):
         return self.repr
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None):
+    def create(cls, db, name, dtypes, primary_key=None, autoincrement=False):
         args = []
 
         for label, dtype in dtypes:
@@ -66,7 +66,9 @@ class Table(object):
                 if sqltype != "INTEGER":
                     raise ValueError(
                         "invalid data type for primary key: %s" % dtype)
-                arg += " PRIMARY KEY AUTOINCREMENT"
+                arg += " PRIMARY KEY"
+                if autoincrement:
+                    arg += " AUTOINCREMENT"
 
             args.append(arg)
 
