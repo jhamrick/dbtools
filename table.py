@@ -1,6 +1,7 @@
 import sqlite3 as sql
 import numpy as np
 import pandas as pd
+import re
 
 
 class Table(object):
@@ -13,15 +14,20 @@ class Table(object):
         conn = sql.connect(self.db)
         with conn:
             cur = conn.cursor()
-            cur.execute("PRAGMA table_info('%s')" % self.name)
-            rows = cur.fetchall()
+            cur.execute("SELECT sql FROM sqlite_master "
+                        "WHERE tbl_name='%s' and type='table'" % name)
+            info = cur.fetchall()
 
-        # id, column name, data type, null, default, primary key
-        self.meta = np.array(rows)
-        self.columns = tuple(self.meta[:, 1])
+        args = re.match("([^\(]*)\((.*)\)", info[0][0]).groups()[1]
+        cols = args.split(", ")
+        self.columns = tuple([x.split(" ")[0] for x in cols])
+
+        # compute repr string
+        self.repr = "%s(%s)" % (self.name, args)
 
         # parse primary key, if any
-        primary_key = np.nonzero(self.meta[:, 5])[0]
+        pk = [x.split(" ", 1)[1].find("PRIMARY KEY") > -1 for x in cols]
+        primary_key = np.nonzero(pk)[0]
         if len(primary_key) > 1:
             raise ValueError("more than one primary key: %s" % primary_key)
         elif len(primary_key) == 1:
@@ -29,12 +35,18 @@ class Table(object):
         else:
             self.primary_key = None
 
-        # compute repr based on column names and types
-        args = ["%s %s" % (m[1], m[2]) for m in self.meta]
-        if self.primary_key is not None:
-            idx = self.columns.index(self.primary_key)
-            args[idx] += " PRIMARY KEY AUTOINCREMENT"
-        self.repr = "%s(%s)" % (self.name, ", ".join(args))
+        # parse autoincrement, if applicable
+        ai = [x.split(" ", 1)[1].find("AUTOINCREMENT") > -1 for x in cols]
+        autoincrement = np.nonzero(ai)[0]
+        if len(autoincrement) > 1:
+            raise ValueError("more than one autoincrementing "
+                             "column: %s" % autoincrement)
+        elif self.primary_key is not None and len(autoincrement) == 1:
+            if self.primary_key != self.columns[autoincrement[0]]:
+                raise ValueError("autoincrement is different from primary key")
+            self.autoincrement = True
+        else:
+            self.autoincrement = False
 
     def __repr__(self):
         return self.repr
