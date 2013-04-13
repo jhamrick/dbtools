@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from nose.tools import with_setup, raises
+from nose.tools import raises
 from table import Table
 from sqlite3 import OperationalError
 
@@ -16,18 +16,17 @@ class TestTable(object):
 
     def setup(self):
         self.tbl = Table.create(
-            "test.db", "Foo", self.dtypes,
-            primary_key='id', autoincrement=True)
+            "test.db", "Foo", self.dtypes)
 
     def teardown(self):
         os.remove("test.db")
 
     def insert(self):
         self.idata = np.array([
-            ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1],
-            ['Louis Reasoner', 26, 68.0],
-            ['Eva Lu Ator', 29, 67.42]
+            [2, 'Alyssa P. Hacker', 25, 66.25],
+            [4, 'Ben Bitdiddle', 24, 70.1],
+            [6, 'Louis Reasoner', 26, 68.0],
+            [8, 'Eva Lu Ator', 29, 67.42]
         ], dtype='object')
         self.tbl.insert(self.idata)
 
@@ -40,27 +39,11 @@ class TestTable(object):
         assert self.tbl.columns == zip(*self.dtypes)[0]
 
     def test_create_primary_key(self):
-        """Check that the primary key is set"""
-        assert self.tbl.primary_key == 'id'
-
-    def test_create_no_primary_key(self):
-        """Check that autoincrement is not set"""
-        self.tbl.drop()
-        self.tbl = Table.create(
-            "test.db", "Foo", self.dtypes,
-            primary_key=None, autoincrement=False)
+        """Check that the primary key is not set"""
         assert self.tbl.primary_key is None
 
-    def test_create_autoincrement1(self):
-        """Check that autoincrement is set"""
-        assert self.tbl.autoincrement
-
-    def test_create_autoincrement2(self):
+    def test_create_autoincrement(self):
         """Check that autoincrement is not set"""
-        self.tbl.drop()
-        self.tbl = Table.create(
-            "test.db", "Foo", self.dtypes,
-            primary_key='id', autoincrement=False)
         assert not self.tbl.autoincrement
 
     @raises(OperationalError)
@@ -75,37 +58,34 @@ class TestTable(object):
 
     @raises(ValueError)
     def test_insert_string(self):
-        """Insert just a string (should fail)"""
+        """Insert just a string"""
         self.tbl.insert('Alyssa P. Hacker')
 
     @raises(ValueError)
     def test_insert_int(self):
-        """Insert just an integer (should fail)"""
+        """Insert just an integer"""
         self.tbl.insert(25)
 
     @raises(ValueError)
     def test_insert_float(self):
-        """Insert just a float (should fail)"""
+        """Insert just a float"""
         self.tbl.insert(66.25)
 
     @raises(ValueError)
     def test_insert_shortlist(self):
-        """Insert a list that's too short (should fail)"""
+        """Insert a list that's too short"""
         self.tbl.insert(['Alyssa P. Hacker', 25])
 
     @raises(ValueError)
-    def test_insert_shortlists(self):
-        """Insert a list of lists that are too short (should fail)"""
-        self.tbl.insert([
-            ['Alyssa P. Hacker', 66.25],
-            ['Ben Bitdiddle', 24]
-        ])
+    def test_insert_longlist(self):
+        """Insert a list of lists that are too short"""
+        self.tbl.insert([1, 2, 'Alyssa P. Hacker', 25, 66.25])
 
     def test_insert_list(self):
         """Insert a list"""
-        self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
+        self.tbl.insert([1, 'Alyssa P. Hacker', 25, 66.25])
         data = self.tbl.select().as_matrix()
-        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        idata = np.array([[1, 'Alyssa P. Hacker', 25, 66.25]], dtype='object')
         assert (data == idata).all()
 
     def test_insert_lists(self):
@@ -114,6 +94,142 @@ class TestTable(object):
         data = self.tbl.select().as_matrix()
         assert (data == self.idata).all()
 
+    @raises(ValueError)
+    def test_index_0(self):
+        """Index the zeroth row"""
+        self.insert()
+        self.tbl[0]
+
+    def test_select_columns(self):
+        """Make sure columns of selected data are correct"""
+        self.insert()
+        data = self.tbl.select()
+        assert tuple(data.columns) == self.tbl.columns
+
+    def test_select_index(self):
+        """Make sure the index of selected data is correct"""
+        self.insert()
+        data = self.tbl.select()
+        assert tuple(data.index) == (0, 1, 2, 3)
+
+    def test_insert_dict(self):
+        """Insert a dictionary"""
+        self.tbl.insert({
+            'id': 1,
+            'name': 'Alyssa P. Hacker',
+            'age': 25,
+            'height': 66.25
+        })
+        data = self.tbl.select().as_matrix()
+        idata = np.array([[1, 'Alyssa P. Hacker', 25, 66.25]], dtype='object')
+        assert (data == idata).all()
+
+    def test_insert_dictlist(self):
+        """Insert a list of dictionaries"""
+        self.tbl.insert([
+            {
+                'id': 1,
+                'name': 'Alyssa P. Hacker',
+                'age': 25,
+                'height': 66.25
+            },
+            {
+                'id': 2,
+                'name': 'Ben Bitdiddle',
+                'age': 24,
+                'height': 70.1
+            }])
+        data = self.tbl.select().as_matrix()
+        idata = np.array([
+            [1, 'Alyssa P. Hacker', 25, 66.25],
+            [2, 'Ben Bitdiddle', 24, 70.1]],
+            dtype='object')
+        assert (data == idata).all()
+
+    def test_slice_name(self):
+        """Slice the 'name' column"""
+        self.insert()
+        data = self.tbl['name'].as_matrix()
+        assert (data == self.idata[:, [1]]).all()
+
+    def test_slice_name_age(self):
+        """Slice the 'name' and 'age' columns"""
+        self.insert()
+        data = self.tbl['name', 'age'].as_matrix()
+        assert (data == self.idata[:, 1:3]).all()
+
+    def test_slice_name_height(self):
+        """Slice the 'name' and 'height' columns"""
+        self.insert()
+        data = self.tbl['name', 'height'].as_matrix()
+        assert (data == self.idata[:, [1, 3]]).all()
+
+    def test_slice_all(self):
+        """Slice all the data"""
+        self.insert()
+        data = self.tbl[:].as_matrix()
+        assert (data == self.idata).all()
+
+
+class TestTablePrimaryKey(TestTable):
+
+    def setup(self):
+        self.tbl = Table.create(
+            "test.db", "Foo", self.dtypes,
+            primary_key='id', autoincrement=False)
+
+    def test_create_primary_key(self):
+        """Check that the primary key is set"""
+        assert self.tbl.primary_key == 'id'
+
+    def test_insert_list(self):
+        """Insert a list"""
+        self.tbl.insert([1, 'Alyssa P. Hacker', 25, 66.25])
+        data = self.tbl.select()
+        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        assert (data.as_matrix() == idata).all()
+        assert tuple(data.index) == (1,)
+
+    def test_insert_lists(self):
+        """Insert a list of lists"""
+        self.insert()
+        data = self.tbl.select()
+        assert (data.as_matrix() == self.idata[:, 1:]).all()
+        assert (np.array(data.index) == self.idata[:, 0]).all()
+
+    def test_insert_dict(self):
+        """Insert a dictionary"""
+        self.tbl.insert({
+            'id': 1,
+            'name': 'Alyssa P. Hacker',
+            'age': 25,
+            'height': 66.25
+        })
+        data = self.tbl.select().as_matrix()
+        idata = np.array([['Alyssa P. Hacker', 25, 66.25]], dtype='object')
+        assert (data == idata).all()
+
+    def test_insert_dictlist(self):
+        """Insert a list of dictionaries"""
+        self.tbl.insert([
+            {
+                'id': 1,
+                'name': 'Alyssa P. Hacker',
+                'age': 25,
+                'height': 66.25
+            },
+            {
+                'id': 2,
+                'name': 'Ben Bitdiddle',
+                'age': 24,
+                'height': 70.1
+            }])
+        data = self.tbl.select().as_matrix()
+        idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1]],
+            dtype='object')
+        assert (data == idata).all()
 
     def test_select_columns(self):
         """Make sure columns of selected data are correct"""
@@ -125,7 +241,48 @@ class TestTable(object):
         """Make sure the index of selected data is correct"""
         self.insert()
         data = self.tbl.select()
-        assert tuple(data.index) == (1, 2, 3, 4)
+        assert (np.array(data.index) == self.idata[:, 0]).all()
+
+    def test_slice_all(self):
+        """Slice all the data"""
+        self.insert()
+        data = self.tbl[:]
+        assert (data.as_matrix() == self.idata[:, 1:]).all()
+        assert (np.array(data.index) == self.idata[:, 0]).all()
+
+
+class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
+
+    def setup(self):
+        self.tbl = Table.create(
+            "test.db", "Foo", self.dtypes,
+            primary_key='id', autoincrement=True)
+
+    def insert(self):
+        self.idata = np.array([
+            ['Alyssa P. Hacker', 25, 66.25],
+            ['Ben Bitdiddle', 24, 70.1],
+            ['Louis Reasoner', 26, 68.0],
+            ['Eva Lu Ator', 29, 67.42]
+        ], dtype='object')
+        self.tbl.insert(self.idata)
+
+    def test_create_autoincrement(self):
+        """Check that autoincrement is set"""
+        assert self.tbl.autoincrement
+
+    def test_insert_list(self):
+        """Insert a list"""
+        self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
+        data = self.tbl.select().as_matrix()
+        idata = np.array([['Alyssa P. Hacker', 25, 66.25]], dtype='object')
+        assert (data == idata).all()
+
+    def test_insert_lists(self):
+        """Insert a list of lists"""
+        self.insert()
+        data = self.tbl.select().as_matrix()
+        assert (data == self.idata).all()
 
     def test_insert_dict(self):
         """Insert a dictionary"""
@@ -135,7 +292,7 @@ class TestTable(object):
             'height': 66.25
         })
         data = self.tbl.select().as_matrix()
-        idata = np.array(['Alyssa P. Hacker', 25, 66.25], dtype='object')
+        idata = np.array([['Alyssa P. Hacker', 25, 66.25]], dtype='object')
         assert (data == idata).all()
 
     def test_insert_dictlist(self):
@@ -158,48 +315,53 @@ class TestTable(object):
             dtype='object')
         assert (data == idata).all()
 
+    def test_select_index(self):
+        """Make sure the index of selected data is correct"""
+        self.insert()
+        data = self.tbl.select()
+        assert tuple(data.index) == (1, 2, 3, 4)
+
     def test_index_0(self):
         """Index the zeroth row"""
         self.insert()
-        data = self.tbl[0].as_matrix()
-        assert (data == self.idata[:0]).all()
+        data = self.tbl[0]
+        assert (data.as_matrix() == self.idata[:0]).all()
 
     def test_index_1(self):
         """Index the first row"""
         self.insert()
-        data = self.tbl[1].as_matrix()
-        assert (data == self.idata[:1]).all()
+        data = self.tbl[1]
+        assert (data.as_matrix() == self.idata[:1]).all()
 
     def test_index_12(self):
         """Slice the first and second rows"""
         self.insert()
-        data = self.tbl[1:3].as_matrix()
-        assert (data == self.idata[:2]).all()
+        data = self.tbl[1:3]
+        assert (data.as_matrix() == self.idata[:2]).all()
 
     def test_index_lt_3(self):
         """Slice up to the third row"""
         self.insert()
-        data = self.tbl[:3].as_matrix()
-        assert (data == self.idata[:2]).all()
+        data = self.tbl[:3]
+        assert (data.as_matrix() == self.idata[:2]).all()
 
     def test_index_geq_3(self):
         """Slice past the third row"""
         self.insert()
-        data = self.tbl[3:].as_matrix()
-        assert (data == self.idata[2:]).all()
+        data = self.tbl[3:]
+        assert (data.as_matrix() == self.idata[2:]).all()
 
     @raises(ValueError)
     def test_index_alternate(self):
-        """Slice every other row (should fail)"""
+        """Slice every other row"""
         self.insert()
-        data = self.tbl[::2].as_matrix()
-        assert (data == self.idata[:2]).all()
+        self.tbl[::2]
 
     def test_slice_name(self):
         """Slice the 'name' column"""
         self.insert()
         data = self.tbl['name'].as_matrix()
-        assert (data == self.idata[:, :1]).all()
+        assert (data == self.idata[:, [0]]).all()
 
     def test_slice_name_age(self):
         """Slice the 'name' and 'age' columns"""
