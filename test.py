@@ -16,7 +16,8 @@ class TestTable(object):
 
     def setup(self):
         self.tbl = Table.create(
-            "test.db", "Foo", self.dtypes, primary_key='id')
+            "test.db", "Foo", self.dtypes,
+            primary_key='id', autoincrement=True)
 
     def teardown(self):
         os.remove("test.db")
@@ -40,7 +41,27 @@ class TestTable(object):
 
     def test_create_primary_key(self):
         """Check that the primary key is set"""
-        assert self.tbl.pk == 'id'
+        assert self.tbl.primary_key == 'id'
+
+    def test_create_no_primary_key(self):
+        """Check that autoincrement is not set"""
+        self.tbl.drop()
+        self.tbl = Table.create(
+            "test.db", "Foo", self.dtypes,
+            primary_key=None, autoincrement=False)
+        assert self.tbl.primary_key is None
+
+    def test_create_autoincrement1(self):
+        """Check that autoincrement is set"""
+        assert self.tbl.autoincrement
+
+    def test_create_autoincrement2(self):
+        """Check that autoincrement is not set"""
+        self.tbl.drop()
+        self.tbl = Table.create(
+            "test.db", "Foo", self.dtypes,
+            primary_key='id', autoincrement=False)
+        assert not self.tbl.autoincrement
 
     @raises(OperationalError)
     def test_drop(self):
