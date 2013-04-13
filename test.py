@@ -7,13 +7,14 @@ from sqlite3 import OperationalError
 
 class TestTable(object):
 
+    dtypes = (
+        ('id', int),
+        ('name', str),
+        ('age', int),
+        ('height', float)
+    )
+
     def setup(self):
-        self.dtypes = (
-            ('id', int),
-            ('name', str),
-            ('age', int),
-            ('height', float)
-        )
         self.tbl = Table.create(
             "test.db", "Foo", self.dtypes, primary_key='id')
 
