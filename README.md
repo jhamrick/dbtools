@@ -1,6 +1,10 @@
 # dbtools
 A simple interface to SQLite databases.
 
+Version: 
+Date: 
+Author: Jessica B. Hamrick
+
 ## Overview
 
 This module handles simple interfacing with a SQLite database.
