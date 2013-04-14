@@ -193,6 +193,53 @@ class TestTable(object):
         data = self.tbl[:]
         assert self.check_equal(self.idata, data)
 
+    def test_update(self):
+        """Update a single value"""
+        self.insert()
+        self.tbl.update({'name': 'Alyssa Hacker'},
+                        where="name='Alyssa P. Hacker'")
+        data = np.array(self.tbl.select()['name'])
+        assert data[0] == 'Alyssa Hacker'
+
+    def test_update_multiple(self):
+        """Update multiple values"""
+        self.insert()
+        self.tbl.update({'name': 'Alyssa Hacker',
+                         'age': 26},
+                        where="name='Alyssa P. Hacker'")
+        data = self.tbl.select()
+        assert np.array(data['name'])[0] == 'Alyssa Hacker'
+        assert np.array(data['age'])[0] == 26
+
+    def test_update_arg(self):
+        """Update a value using a WHERE argument"""
+        self.insert()
+        self.tbl.update({'name': 'Alyssa Hacker'},
+                        where=("name=?", "Alyssa P. Hacker"))
+        data = self.tbl.select()
+        assert np.array(data['name'])[0] == 'Alyssa Hacker'
+
+    def test_update_args(self):
+        """Update a value using multiple WHERE arguments"""
+        self.insert()
+        self.tbl.update({'name': 'Alyssa Hacker'},
+                        where=("name=? AND age=?", ("Alyssa P. Hacker", 25)))
+        data = self.tbl.select()
+        assert np.array(data['name'])[0] == 'Alyssa Hacker'
+
+    def test_update_no_filter(self):
+        """Update an entire column"""
+        self.insert()
+        self.tbl.update({'age': 0})
+        data = self.tbl.select()
+        assert (np.array(data['age']) == 0).all()
+
+    @raises(ValueError)
+    def test_update_fail(self):
+        """Update with invalid values"""
+        self.insert()
+        self.tbl.update('name')
+
 
 ######################################################################
 class TestTablePrimaryKey(TestTable):

@@ -231,6 +231,24 @@ class Table(object):
                     print ", ".join([str(x) for x in cmd])
                 cur.execute(*cmd)
 
+    def _where(self, args):
+        # add a selection filter, if specified
+        if args is not None:
+            if not hasattr(args, '__iter__'):
+                args = (args, None)
+            where_str, where_args = args
+            query = " WHERE %s" % where_str
+            if where_args is None:
+                out = (query, [])
+            else:
+                if not hasattr(where_args, "__iter__"):
+                    where_args = (where_args,)
+                out = (query, where_args)
+        else:
+            out = ("", [])
+
+        return out
+
     def select(self, columns=None, where=None):
         """Select data from the table.
 
@@ -278,20 +296,11 @@ class Table(object):
 
         # base query
         query = "SELECT %s FROM %s" % (sel, self.name)
-        # add a selection filter, if specified
-        if where is not None:
-            if not hasattr(where, '__iter__'):
-                where = (where, None)
-            where_str, where_args = where
-            query += " WHERE %s" % where_str
-            if where_args is None:
-                cmd = (query,)
-            else:
-                if not hasattr(where_args, "__iter__"):
-                    where_args = (where_args,)
-                cmd = (query, where_args)
-        else:
-            cmd = (query,)
+        where_str, where_args = self._where(where)
+        query += where_str
+        cmd = [query]
+        if len(where_args) > 0:
+            cmd.append(where_args)
 
         if self.verbose:
             print ", ".join([str(x) for x in cmd])
@@ -383,6 +392,53 @@ class Table(object):
             raise ValueError("invalid key: %s" % key)
 
         return data
+
+    def update(self, values, where=None):
+        """Update data in the table.
+
+        Parameters
+        ----------
+        values : dict
+            The column names (keys) and new values to update.
+
+        where : (default=None)
+            Additional filtering to perform on the data akin to the
+            'WHERE' SQL statement, e.g.:
+
+            where="age=25"
+
+            If you need to pass in variable arguments, use question
+            marks, e.g.:
+
+            where=("age=?", 25)
+            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+
+        """
+
+        if not hasattr(values, 'keys'):
+            raise ValueError("expected a dictionary, got %s" % type(values))
+
+        # base update
+        update = "UPDATE %s SET " % self.name
+        update += ", ".join(["%s=?" % key for key in sorted(values.keys())])
+        args = [values[key] for key in sorted(values.keys())]
+
+        # filter with WHERE
+        where_str, where_args = self._where(where)
+        update += where_str
+        args.extend(where_args)
+        cmd = [update]
+        if len(args) > 0:
+            cmd.append(args)
+
+        if self.verbose:
+            print ", ".join([str(x) for x in cmd])
+
+        # connect to the database and execute the update
+        conn = sql.connect(self.db)
+        with conn:
+            cur = conn.cursor()
+            cur.execute(*cmd)
 
     def __repr__(self):
         return self.repr
