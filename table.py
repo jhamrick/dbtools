@@ -146,6 +146,51 @@ class Table(object):
         else:
             self.autoincrement = False
 
+    def _where(self, args):
+        """Helper function to parse a WHERE statement.
+
+        The `args` parameter holds the conditional for the WHERE
+        statement. If `args` is a sequence, then the first element is
+        the conditional and the second element is an argument or list of
+        arguments for that conditional (i.e., where there are ? in the
+        conditional).
+
+        self._where("age=25")
+
+        If you need to pass in variable arguments, use question
+        marks, e.g.:
+
+        self._where("age=?", 25)
+        self._where("age=? OR name=?", (25, "Ben Bitdiddle"))
+
+        Parameters
+        ----------
+        args : string or (string, value) or (string, (value1, value2, ...))
+            Conditional for the WHERE statement (see above).
+
+        Returns
+        -------
+        2-tuple of (conditional string, argument list)
+
+        """
+
+        # add a selection filter, if specified
+        if args is not None:
+            if not hasattr(args, '__iter__'):
+                args = (args, None)
+            where_str, where_args = args
+            query = " WHERE %s" % where_str
+            if where_args is None:
+                out = (query, [])
+            else:
+                if not hasattr(where_args, "__iter__"):
+                    where_args = (where_args,)
+                out = (query, where_args)
+        else:
+            out = ("", [])
+
+        return out
+
     def drop(self):
         """Drop the table from its database.
 
@@ -230,24 +275,6 @@ class Table(object):
                 if self.verbose:
                     print ", ".join([str(x) for x in cmd])
                 cur.execute(*cmd)
-
-    def _where(self, args):
-        # add a selection filter, if specified
-        if args is not None:
-            if not hasattr(args, '__iter__'):
-                args = (args, None)
-            where_str, where_args = args
-            query = " WHERE %s" % where_str
-            if where_args is None:
-                out = (query, [])
-            else:
-                if not hasattr(where_args, "__iter__"):
-                    where_args = (where_args,)
-                out = (query, where_args)
-        else:
-            out = ("", [])
-
-        return out
 
     def select(self, columns=None, where=None):
         """Select data from the table.
