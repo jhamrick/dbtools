@@ -20,7 +20,7 @@ convenient access to a robust form of storage.
 
 ### Create and load
 
-```python Creating a table
+```python
 >>> from dbtools import Table
 >>> tbl = Table.create("data.db", "People",
 ... [('id', int),
@@ -37,7 +37,7 @@ People(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, height REAL
 
 If a table already exists, we can just directly create a Table object:
 
-```python Accessing a table
+```python
 >>> tbl = Table("data.db", "People")
 >>> tbl
 People(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, height REAL)
@@ -53,7 +53,7 @@ True
 
 Inserting with a list (excluding `id`, because it autoincrements):
 
-```python Inserting a list
+```python
 >>> tbl.insert(["Alyssa P. Hacker", 25, 66.24])
 >>> tbl.select()
                 name  age  height
@@ -65,7 +65,7 @@ id
 
 Inserting with a dictionary:
 
-```python Inserting a dictionary
+```python
 >>> tbl.insert({
 ... 'name': 'Ben Bitdiddle',
 ... 'age': 24,
@@ -89,7 +89,7 @@ column is an integer and autoincrements). Note that because SQLite
 databases are one-indexed, indexing the zeroth element returns an
 empty `DataFrame`.
 
-```python Selecting rows
+```python
 >>> tbl[1]
                 name  age  height
 id
@@ -103,7 +103,7 @@ id
 If you pass in a string or sequence of strings, it will treat them as
 column names and select those columns:
 
-```python Selecting columns
+```python
 >>> tbl['name', 'height']
                 name  height
 id
@@ -115,7 +115,7 @@ More advanced selection can be done through the `select` method by
 specifying the `where` keyword argument (and you can use the `?`
 syntax from the `sqlite3` library for untrusted inputs):
 
-```python Selection with WHERE
+```python
 >>> tbl.select(where='age>24')
                 name  age  height
 id
@@ -133,7 +133,7 @@ being columns, and values being new data) and (optionally) a `where`
 keyword argument like in the `select` method to specify what data
 should be updated.
 
-```python Updating
+```python
 >>> tbl.update({'age': 26}, where='id=1')
 >>> tbl.select()
                 name  age  height
@@ -148,7 +148,7 @@ Deleting a row or rows requires specifying a `where` keyword argument
 like in `select` and `update` (if it is not given, all rows are
 deleted).
 
-```python Deleting a row
+```python
 >>> tbl.delete(where='height<70')
 >>> tbl.select()
              name  age  height
@@ -162,7 +162,7 @@ Finally, the `drop` method is used to drop (delete) an entire table
 from its database. Of course, this means it can't be accessed
 afterwards because it no longer exists.
 
-```python Drop a table
+```python
 >>> tbl.drop()
 >>> tbl.select()
 Traceback (most recent call last):
