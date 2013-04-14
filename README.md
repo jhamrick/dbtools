@@ -1,9 +1,9 @@
 # dbtools
 A simple interface to SQLite databases.
 
-Version: 
-Date: 
-Author: Jessica B. Hamrick
+**Version**: xxx  
+**Date**: xxx  
+**Author**: Jessica B. Hamrick  
 
 ## Overview
 
