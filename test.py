@@ -249,6 +249,41 @@ class TestTable(object):
         self.insert()
         self.tbl.update('name')
 
+    def test_delete_row(self):
+        """Delete a row"""
+        self.insert()
+        self.tbl.delete(where="age=25")
+        data = self.tbl.select()
+        assert self.check_data(self.idata[1:], data)
+
+    def test_delete_row_arg(self):
+        """Delete a row"""
+        self.insert()
+        self.tbl.delete(where=("age=?", 25))
+        data = self.tbl.select()
+        assert self.check_data(self.idata[1:], data)
+
+    def test_delete_rows(self):
+        """Delete a row"""
+        self.insert()
+        self.tbl.delete(where="age>25")
+        data = self.tbl.select()
+        assert self.check_data(self.idata[:2], data)
+
+    def test_delete_rows_args(self):
+        """Delete a row"""
+        self.insert()
+        self.tbl.delete(where=("age=? OR height>?", (25, 70)))
+        data = self.tbl.select()
+        assert self.check_data(self.idata[2:], data)
+
+    def test_delete_all(self):
+        """Delete a row"""
+        self.insert()
+        self.tbl.delete()
+        data = self.tbl.select()
+        assert self.check_data(self.idata[:0], data)
+
 
 ######################################################################
 class TestTablePrimaryKey(TestTable):

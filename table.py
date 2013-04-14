@@ -467,6 +467,46 @@ class Table(object):
             cur = conn.cursor()
             cur.execute(*cmd)
 
+    def delete(self, where=None):
+        """Delete rows from the table.
+
+        Parameters
+        ----------
+        where : (default=None)
+            Filtering to determine which rows should be deleted, akin to
+            the 'WHERE' SQL statement, e.g.:
+
+            where="age=25"
+
+            If you need to pass in variable arguments, use question
+            marks, e.g.:
+
+            where=("age=?", 25)
+            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+
+            NOTE: If where is None, then ALL rows will be deleted!
+
+        """
+
+        # base update
+        delete = "DELETE FROM %s" % self.name
+
+        # filter with WHERE
+        where_str, where_args = self._where(where)
+        delete += where_str
+        cmd = [delete]
+        if len(where_args) > 0:
+            cmd.append(where_args)
+
+        if self.verbose:
+            print ", ".join([str(x) for x in cmd])
+
+        # connect to the database and execute the update
+        conn = sql.connect(self.db)
+        with conn:
+            cur = conn.cursor()
+            cur.execute(*cmd)
+
     def __repr__(self):
         return self.repr
 
