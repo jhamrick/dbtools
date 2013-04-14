@@ -507,6 +507,26 @@ class Table(object):
             cur = conn.cursor()
             cur.execute(*cmd)
 
+    def save_csv(self, path, columns=None, where=None):
+        """Write table data to a CSV text file.
+
+        Takes in a `path` for the file as well as any arguments and/or
+        keyword arguments to be passed to `self.select`. The output of
+        `self.select` with those arguments is what will be written to
+        the csv file.
+
+        Parameters
+        ----------
+        path : string
+            Path to save the csv file.
+        columns : (default=None) See `self.select`
+        where : (default=None) See `self.select`
+
+        """
+
+        table = self.select(columns=columns, where=where)
+        table.to_csv(path)
+
     def __repr__(self):
         return self.repr
 

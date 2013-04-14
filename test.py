@@ -284,6 +284,12 @@ class TestTable(object):
         data = self.tbl.select()
         assert self.check_data(self.idata[:0], data)
 
+    def test_csv(self):
+        """Write a csv file"""
+        self.insert()
+        self.tbl.save_csv("test.csv")
+        os.remove("test.csv")
+
 
 ######################################################################
 class TestTablePrimaryKey(TestTable):
