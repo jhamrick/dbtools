@@ -13,7 +13,8 @@ class TestTablePrimaryKey(TestTable):
             os.remove(DBNAME)
         self.tbl = Table.create(
             DBNAME, "Foo", self.dtypes,
-            primary_key='id', autoincrement=False)
+            primary_key='id', autoincrement=False,
+            verbose=True)
 
     def check_data(self, indata, outdata):
         out = True

@@ -15,7 +15,8 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
             os.remove(DBNAME)
         self.tbl = Table.create(
             DBNAME, "Foo", self.dtypes,
-            primary_key='id', autoincrement=True)
+            primary_key='id', autoincrement=True,
+            verbose=True)
 
     def insert(self):
         self.idata = np.array([

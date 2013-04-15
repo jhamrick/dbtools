@@ -21,7 +21,7 @@ class TestTable(object):
         if os.path.exists(DBNAME):
             os.remove(DBNAME)
         self.tbl = Table.create(
-            DBNAME, "Foo", self.dtypes)
+            DBNAME, "Foo", self.dtypes, verbose=True)
 
     def teardown(self):
         os.remove(DBNAME)
