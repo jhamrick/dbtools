@@ -185,7 +185,6 @@ class TestTable(object):
         """Slice the 'name' column"""
         self.insert()
         data = self.tbl['name']
-        print self.idata[:, [1]], data
         assert self.check(self.idata[:, [1]], data)
 
     def test_slice_name_age(self):
@@ -261,28 +260,28 @@ class TestTable(object):
         assert self.check_data(self.idata[1:], data)
 
     def test_delete_row_arg(self):
-        """Delete a row"""
+        """Delete a row with an argument"""
         self.insert()
         self.tbl.delete(where=("age=?", 25))
         data = self.tbl.select()
         assert self.check_data(self.idata[1:], data)
 
     def test_delete_rows(self):
-        """Delete a row"""
+        """Delete multiple rows"""
         self.insert()
         self.tbl.delete(where="age>25")
         data = self.tbl.select()
         assert self.check_data(self.idata[:2], data)
 
     def test_delete_rows_args(self):
-        """Delete a row"""
+        """Delete multiple rows with multiple arguments"""
         self.insert()
         self.tbl.delete(where=("age=? OR height>?", (25, 70)))
         data = self.tbl.select()
         assert self.check_data(self.idata[2:], data)
 
     def test_delete_all(self):
-        """Delete a row"""
+        """Delete all rows"""
         self.insert()
         self.tbl.delete()
         data = self.tbl.select()
