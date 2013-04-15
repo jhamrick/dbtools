@@ -1,8 +1,9 @@
-import sqlite3 as sql
 import numpy as np
 import pandas as pd
 import re
 import os
+
+from .util import sql_execute
 
 
 class Table(object):
@@ -37,14 +38,8 @@ class Table(object):
             return False
 
         # select the names of all tables in the database
-        conn = sql.connect(db)
-        with conn:
-            cur = conn.cursor()
-            cmd = "SELECT name FROM sqlite_master WHERE type='table'"
-            if verbose:
-                print cmd
-            cur.execute(cmd)
-            result = cur.fetchall()
+        cmd = "SELECT name FROM sqlite_master WHERE type='table'"
+        result = sql_execute(db, cmd, fetchall=True, verbose=verbose)
 
         # try to match `name` to one of the table names
         for table in result:
@@ -115,14 +110,10 @@ class Table(object):
             args.append(arg)
 
         # connect to the database and create the table
-        conn = sql.connect(db)
-        with conn:
-            cur = conn.cursor()
-            cmd = "CREATE TABLE %s(%s)" % (name, ', '.join(args))
-            if verbose:
-                print cmd
-            cur.execute(cmd)
+        cmd = "CREATE TABLE %s(%s)" % (name, ', '.join(args))
+        sql_execute(db, cmd, verbose=verbose)
 
+        # create a Table object
         tbl = cls(db, name, verbose=verbose)
         return tbl
 
@@ -148,12 +139,9 @@ class Table(object):
         self.verbose = bool(verbose)
 
         # query the database for information about the table
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cur.execute("SELECT sql FROM sqlite_master "
-                        "WHERE tbl_name='%s' and type='table'" % name)
-            info = cur.fetchall()
+        cmd = ("SELECT sql FROM sqlite_master "
+               "WHERE tbl_name='%s' and type='table'" % name)
+        info = sql_execute(self.db, cmd, fetchall=True, verbose=verbose)
 
         # parse the response -- it will look like 'CREATE TABLE
         # name(col1 TYPE, col2 TYPE, ...)'
@@ -243,13 +231,8 @@ class Table(object):
 
         """
 
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cmd = "DROP TABLE %s" % self.name
-            if self.verbose:
-                print cmd
-            cur.execute(cmd)
+        cmd = "DROP TABLE %s" % self.name
+        sql_execute(self.db, cmd, verbose=self.verbose)
 
     def insert(self, values=None):
         """Insert values into the table.
@@ -310,14 +293,9 @@ class Table(object):
         qm = ", ".join(qm)
 
         # perform the insertion
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            for entry in entries:
-                cmd = ("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
-                if self.verbose:
-                    print ", ".join([str(x) for x in cmd])
-                cur.execute(*cmd)
+        for entry in entries:
+            cmd = ("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+            sql_execute(self.db, cmd, verbose=self.verbose)
 
     def select(self, columns=None, where=None):
         """Select data from the table.
@@ -372,15 +350,8 @@ class Table(object):
         if len(where_args) > 0:
             cmd.append(where_args)
 
-        if self.verbose:
-            print ", ".join([str(x) for x in cmd])
-
         # connect to the database and execute the query
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cur.execute(*cmd)
-            rows = cur.fetchall()
+        rows = sql_execute(self.db, cmd, fetchall=True, verbose=self.verbose)
 
         # now we need to parse the result into a DataFrame
         if self.primary_key in cols:
@@ -501,14 +472,8 @@ class Table(object):
         if len(args) > 0:
             cmd.append(args)
 
-        if self.verbose:
-            print ", ".join([str(x) for x in cmd])
-
         # connect to the database and execute the update
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cur.execute(*cmd)
+        sql_execute(self.db, cmd, verbose=self.verbose)
 
     def delete(self, where=None):
         """Delete rows from the table.
@@ -541,14 +506,8 @@ class Table(object):
         if len(where_args) > 0:
             cmd.append(where_args)
 
-        if self.verbose:
-            print ", ".join([str(x) for x in cmd])
-
         # connect to the database and execute the update
-        conn = sql.connect(self.db)
-        with conn:
-            cur = conn.cursor()
-            cur.execute(*cmd)
+        sql_execute(self.db, cmd, verbose=self.verbose)
 
     def save_csv(self, path, columns=None, where=None):
         """Write table data to a CSV text file.

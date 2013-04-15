@@ -1,4 +1,5 @@
 import numpy as np
+import sqlite3 as sql
 
 
 def dict_to_dtypes(data):
@@ -60,3 +61,51 @@ def dict_to_dtypes(data):
         types.append((key, tt))
 
     return types
+
+
+def sql_execute(db, cmd, fetchall=False, verbose=False):
+    """Execute a SQL command `cmd` in database `db`.
+
+    Parameters
+    ----------
+    db : string
+        Path to the SQLite database.
+
+    cmd : string or list
+        Command to be executed -- specifically, parameters to be passed
+        to `sqlite3.Cursor.execute`. See:
+        http://docs.python.org/2/library/sqlite3.html#sqlite3.Cursor.execute
+
+    fetchall : bool (default=False)
+        Fetch the result of the command, and return it.
+
+    verbose : bool (default=False)
+        Print the command that is run.
+
+    Returns
+    -------
+    The result of the executed command, if `fetchall=True`.
+
+    """
+
+    # wrap the command in a list, if it isn't one already
+    if not hasattr(cmd, '__iter__'):
+        cmd = [cmd]
+
+    # connect to the database
+    conn = sql.connect(db)
+    with conn:
+        # get the database cursor
+        cur = conn.cursor()
+        # optionally print the command we're running
+        if verbose:
+            print ", ".join([str(x) for x in cmd])
+        # run the command
+        cur.execute(*cmd)
+        # optionally get the result
+        if fetchall:
+            result = cur.fetchall()
+        else:
+            result = None
+
+    return result
