@@ -5,6 +5,26 @@ from table import Table
 from sqlite3 import OperationalError
 
 
+def test_not_exists_no_db():
+    """Check that the table does not exist (db does not exist)"""
+    if os.path.exists('test.db'):
+        os.remove('test.db')
+    assert not Table.exists('test.db', 'foo')
+
+
+def test_not_exists():
+    """Check that the table does not exist (db does exist)"""
+    tbl = Table.create("test.db", "foo", [('id', int)])
+    tbl.drop()
+    assert not Table.exists('test.db', 'foo')
+
+
+def test_exists():
+    """Check that the table does exist"""
+    Table.create("test.db", "foo", [('id', int)])
+    assert Table.exists('test.db', 'foo')
+
+
 ######################################################################
 class TestTable(object):
 

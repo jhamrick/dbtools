@@ -2,12 +2,55 @@ import sqlite3 as sql
 import numpy as np
 import pandas as pd
 import re
+import os
 
 
 class Table(object):
     """A frame-like interface to a SQLite database table.
 
     """
+
+    @classmethod
+    def exists(cls, db, name, verbose=False):
+        """Check if a table called `name` exists in the database `db`.
+
+        Parameters
+        ----------
+        db : string
+            Path to the SQLite database.
+
+        name : string
+            Name of the desired table.
+
+        verbose : bool (default=False)
+            Print out SQL command information.
+
+
+        Returns
+        -------
+        True if the table exists, False otherwise
+
+        """
+
+        # if the database doesn't exist, neither does the table
+        if not os.path.exists(db):
+            return False
+
+        # select the names of all tables in the database
+        conn = sql.connect(db)
+        with conn:
+            cur = conn.cursor()
+            cmd = "SELECT name FROM sqlite_master WHERE type='table'"
+            if verbose:
+                print cmd
+            cur.execute(cmd)
+            result = cur.fetchall()
+
+        # try to match `name` to one of the table names
+        for table in result:
+            if name == table[0]:
+                return True
+        return False
 
     @classmethod
     def create(cls, db, name, dtypes, primary_key=None,
