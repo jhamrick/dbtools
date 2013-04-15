@@ -2,7 +2,7 @@ import numpy as np
 import sqlite3 as sql
 
 
-def dict_to_dtypes(data):
+def dict_to_dtypes(data, order=None):
     """Parses data types from a dictionary or list of dictionaries.
 
     The dictionary keys will be paired with the types of the
@@ -29,6 +29,10 @@ def dict_to_dtypes(data):
     data : dictionary or list of dictionaries
         Data to extract names and dtypes from.
 
+    order : list of strings (default=None)
+        The order in which to return the dtypes in, by key. If None, the
+        dtypes will be sorted alphabetically by key.
+
     Returns
     -------
     List of 2-tuples, where each tuple has the form (key, dtype)
@@ -48,10 +52,14 @@ def dict_to_dtypes(data):
             if x[key] is not None:
                 all_types[key].add(type(x[key]))
 
+    # make sure we have an ordering
+    if order is None:
+        order = sorted(all_types.keys())
+
     # make sure each key has a datatype associated with it and build
     # up the list of (key, dtype) tuples
     types = []
-    for key in sorted(all_types.keys()):
+    for key in order:
         t = list(all_types[key])
         if len(t) != 1:
             raise ValueError("could not determine datatype "
