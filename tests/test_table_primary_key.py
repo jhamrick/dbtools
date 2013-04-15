@@ -1,6 +1,8 @@
 import numpy as np
 import os
 
+from nose.tools import raises
+
 from .. import Table
 from . import DBNAME
 from test_table import TestTable
@@ -13,7 +15,7 @@ class TestTablePrimaryKey(TestTable):
             os.remove(DBNAME)
         self.tbl = Table.create(
             DBNAME, "Foo", self.dtypes,
-            primary_key='id', autoincrement=False,
+            primary_key='id', autoincrement=True,
             verbose=True)
 
     def check_data(self, indata, outdata):
@@ -27,6 +29,10 @@ class TestTablePrimaryKey(TestTable):
         if not (indata[:, 0] == np.array(outdata.index)).all():
             out = False
         return out
+
+    def test_create_autoincrement(self):
+        """Check that autoincrement is set"""
+        assert self.tbl.autoincrement
 
     def test_create_primary_key(self):
         """Check that the primary key is set"""
@@ -55,3 +61,39 @@ class TestTablePrimaryKey(TestTable):
         self.insert()
         data = self.tbl['name', 'height']
         assert self.check(self.idata[:, [0, 1, 3]], data)
+
+    def test_index_0(self):
+        """Index the zeroth row"""
+        self.insert()
+        data = self.tbl[0]
+        assert self.check(self.idata[:0], data)
+
+    def test_index_1(self):
+        """Index the first row"""
+        self.insert()
+        data = self.tbl[2]
+        assert self.check(self.idata[:1], data)
+
+    def test_index_12(self):
+        """Slice the first and second rows"""
+        self.insert()
+        data = self.tbl[2:6]
+        assert self.check(self.idata[:2], data)
+
+    def test_index_lt_3(self):
+        """Slice up to the third row"""
+        self.insert()
+        data = self.tbl[:6]
+        assert self.check(self.idata[:2], data)
+
+    def test_index_geq_3(self):
+        """Slice past the third row"""
+        self.insert()
+        data = self.tbl[6:]
+        assert self.check(self.idata[2:], data)
+
+    @raises(ValueError)
+    def test_index_alternate(self):
+        """Slice every other row"""
+        self.insert()
+        self.tbl[::2]

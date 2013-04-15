@@ -117,12 +117,6 @@ class TestTable(object):
         data = self.tbl.select()
         assert self.check(self.idata, data)
 
-    @raises(ValueError)
-    def test_index_0(self):
-        """Index the zeroth row"""
-        self.insert()
-        self.tbl[0]
-
     def test_select_columns(self):
         """Make sure columns of selected data are correct"""
         self.insert()

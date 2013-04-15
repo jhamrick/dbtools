@@ -263,10 +263,14 @@ class Table(object):
         elif not hasattr(values[0], "__iter__"):
             values = [values]
 
-        # find the columns, excluding the primary key, that we need to
-        # insert values for
+        if not hasattr(values[0], "__iter__"):
+            raise ValueError(
+                "expected dict or list/tuple, got: %s" % type(values[0]))
+
+        # if we're not trying to insert a value for the primary key,
+        # exclude it from the column list
         cols = list(self.columns)
-        if self.autoincrement:
+        if len(values[0]) == (len(cols) - 1) and self.primary_key is not None:
             cols.remove(self.primary_key)
         ncol = len(cols)
 
@@ -288,13 +292,13 @@ class Table(object):
 
         # target string of NULL and question marks
         qm = ["?"]*ncol
-        if self.autoincrement:
-            qm.insert(self.columns.index(self.primary_key), 'NULL')
         qm = ", ".join(qm)
+        c = ", ".join(cols)
 
         # perform the insertion
         for entry in entries:
-            cmd = ("INSERT INTO %s VALUES (%s)" % (self.name, qm), entry)
+            cmd = ("INSERT INTO %s(%s) VALUES (%s)" % (
+                self.name, c, qm), entry)
             sql_execute(self.db, cmd, verbose=self.verbose)
 
     def select(self, columns=None, where=None):
@@ -395,7 +399,7 @@ class Table(object):
 
         if isinstance(key, int):
             # select a row
-            if not self.autoincrement:
+            if self.primary_key is None:
                 raise ValueError("no autoincrementing primary key column")
             data = self.select(where=("%s=?" % self.primary_key, key))
 
@@ -407,7 +411,7 @@ class Table(object):
                 where = None
 
             else:
-                if not self.autoincrement:
+                if self.primary_key is None:
                     raise ValueError("no autoincrementing primary key column")
                 if key.step not in (None, 1):
                     raise ValueError("cannot handle step size > 1")

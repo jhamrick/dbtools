@@ -40,10 +40,6 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
             out = False
         return out
 
-    def test_create_autoincrement(self):
-        """Check that autoincrement is set"""
-        assert self.tbl.autoincrement
-
     def test_insert_list(self):
         """Insert a list"""
         self.tbl.insert(['Alyssa P. Hacker', 25, 66.25])
@@ -82,41 +78,35 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
             dtype='object')
         assert self.check(idata, data)
 
-    # def test_select_index(self):
-    #     """Make sure the index of selected data is correct"""
-    #     self.insert()
-    #     data = self.tbl.select()
-    #     assert tuple(data.index) == (1, 2, 3, 4)
-
     def test_index_0(self):
         """Index the zeroth row"""
         self.insert()
         data = self.tbl[0]
-        assert (data.as_matrix() == self.idata[:0]).all()
+        assert self.check_data(self.idata[:0], data)
 
     def test_index_1(self):
         """Index the first row"""
         self.insert()
         data = self.tbl[1]
-        assert (data.as_matrix() == self.idata[:1]).all()
+        assert self.check_data(self.idata[:1], data)
 
     def test_index_12(self):
         """Slice the first and second rows"""
         self.insert()
         data = self.tbl[1:3]
-        assert (data.as_matrix() == self.idata[:2]).all()
+        assert self.check_data(self.idata[:2], data)
 
     def test_index_lt_3(self):
         """Slice up to the third row"""
         self.insert()
         data = self.tbl[:3]
-        assert (data.as_matrix() == self.idata[:2]).all()
+        assert self.check_data(self.idata[:2], data)
 
     def test_index_geq_3(self):
         """Slice past the third row"""
         self.insert()
         data = self.tbl[3:]
-        assert (data.as_matrix() == self.idata[2:]).all()
+        assert self.check_data(self.idata[2:], data)
 
     @raises(ValueError)
     def test_index_alternate(self):
