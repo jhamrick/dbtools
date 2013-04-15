@@ -69,6 +69,13 @@ class TestTable(object):
         """Check that autoincrement is not set"""
         assert not self.tbl.autoincrement
 
+    def test_create_from_dataframe(self):
+        """Create a table from a dataframe"""
+        self.insert()
+        data = self.tbl.select()
+        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True)
+        assert (tbl.select() == data).as_matrix().all()
+
     @raises(OperationalError)
     def test_drop(self):
         """Drop table"""

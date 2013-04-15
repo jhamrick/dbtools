@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import os
 
-from .util import sql_execute
+from .util import sql_execute, dict_to_dtypes
 
 
 class Table(object):
@@ -80,6 +80,29 @@ class Table(object):
 
         """
 
+        if isinstance(dtypes, pd.DataFrame):
+            ## populate the table with the contents from a dataframe
+            idx = dtypes.index
+            # figure out the primary key
+            if idx.name is not None:
+                if primary_key is not None and primary_key != idx.name:
+                    raise ValueError("primary key mismatch")
+                primary_key = idx.name
+            # extract the data and column names
+            data = [list(dtypes.as_matrix()[i]) for i in xrange(len(dtypes))]
+            names = list(dtypes.columns)
+            if primary_key is not None:
+                for i in xrange(len(dtypes)):
+                    data[i].insert(0, idx[i])
+                names.insert(0, primary_key)
+            # parse data types
+            d = dict(zip(names, data[0]))
+            dtypes = dict_to_dtypes(d, order=names)
+            # coerce data with the data types we just extracted
+            data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
+        else:
+            data = None
+
         args = []
 
         for label, dtype in dtypes:
@@ -115,6 +138,11 @@ class Table(object):
 
         # create a Table object
         tbl = cls(db, name, verbose=verbose)
+
+        # insert data, if it was given
+        if data is not None:
+            tbl.insert(values=data)
+
         return tbl
 
     def __init__(self, db, name, verbose=False):
