@@ -1,6 +1,6 @@
 from nose.tools import raises
 
-from ..util import dict_to_dtypes
+from dbtools.util import dict_to_dtypes
 
 
 def test_dict_to_dtypes_1():
