@@ -3,7 +3,7 @@ import os
 
 from nose.tools import raises
 
-from .. import Table
+from dbtools import Table
 from . import DBNAME
 from test_table import TestTable
 

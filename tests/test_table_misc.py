@@ -1,6 +1,6 @@
 import os
 
-from .. import Table
+from dbtools import Table
 from . import DBNAME
 
 

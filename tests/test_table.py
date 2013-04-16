@@ -4,7 +4,7 @@ import os
 from nose.tools import raises
 from sqlite3 import OperationalError
 
-from .. import Table
+from dbtools import Table
 from . import DBNAME
 
 
