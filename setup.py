@@ -23,4 +23,8 @@ setup(
         "Topic :: Database :: Front-Ends",
         "Topic :: Utilities",
     ],
+    install_requires=[
+        'pandas',
+        'numpy'
+    ]
 )
