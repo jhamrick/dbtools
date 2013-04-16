@@ -1,0 +1,1 @@
+DBNAME = 'tests/test.db'
