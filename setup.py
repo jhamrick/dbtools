@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='dbtools',
-    version='0.01',
+    version='0.02',
     description='Lightweight SQLite interface',
     author='Jessica B. Hamrick',
     author_email='jhamrick@berkeley.edu',
