@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.03
+
+* Add Makefile and other minor installation modifications
+
 ## Version 0.02
 
 * Add `setup.py` installation support (#4)
