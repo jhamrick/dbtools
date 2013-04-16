@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+import shutil
+
+shutil.copy("README.md", "README")
 
 setup(
     name='dbtools',
@@ -20,4 +23,8 @@ setup(
         "Topic :: Database :: Front-Ends",
         "Topic :: Utilities",
     ],
+    install_requires=[
+        'pandas',
+        'numpy'
+    ]
 )
