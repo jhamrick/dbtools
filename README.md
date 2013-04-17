@@ -20,6 +20,27 @@ object-relational mapping at all. This is meant to be used more for
 scientific data collection (e.g., behavioral experiments) as
 convenient access to a robust form of storage.
 
+## Installation
+
+The easiest way to get `dbtools` is with `pip`:
+
+```bash
+pip install dbtools
+```
+
+Alternately, you can clone the repository and install from source:
+
+```bash
+git clone git@github.com:jhamrick/dbtools.git
+cd dbtools
+python setup.py install
+```
+
+There is also a `Makefile` in the root of the repository which is just
+a convenience wrapper around `setup.py`. So, `make install` is
+equivalent to `python setup.py install`. You can use whichever one you
+prefer.
+
 ## Examples
 
 ### Create and load
