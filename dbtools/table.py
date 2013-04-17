@@ -122,6 +122,7 @@ class Table(object):
 
         if isinstance(init, pd.DataFrame):
             ## populate the table with the contents from a dataframe
+
             idx = init.index
             # figure out the primary key
             if idx.name is not None:
@@ -137,15 +138,27 @@ class Table(object):
                 names.insert(0, primary_key)
             # parse data types
             d = dict(zip(names, data[0]))
-            init = dict_to_dtypes(d, order=names)
+            dtypes = dict_to_dtypes(d, order=names)
             # coerce data with the data types we just extracted
-            data = [[init[i][1](x[i]) for i in xrange(len(x))] for x in data]
+            data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
+
+        elif hasattr(init, 'keys') or (
+                hasattr(init, '__iter__') and hasattr(init[0], 'keys')):
+            ## populate the table with the contents from dictionaries
+
+            if hasattr(init, 'keys'):
+                init = [init]
+            dtypes = dict_to_dtypes(init)
+            data = [[dtype(init[i][col]) for col, dtype in dtypes]
+                    for i in xrange(len(init))]
+
         else:
+            dtypes = init
             data = None
 
         args = []
 
-        for label, dtype in init:
+        for label, dtype in dtypes:
             # parse the python type into a SQL type
             if dtype is None:
                 sqltype = "NULL"
