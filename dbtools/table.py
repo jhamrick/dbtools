@@ -48,7 +48,7 @@ class Table(object):
         return False
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None,
+    def create(cls, db, name, init, primary_key=None,
                autoincrement=False, verbose=False):
         """Create a table called `name` in the database `db`.
 
@@ -80,32 +80,32 @@ class Table(object):
 
         """
 
-        if isinstance(dtypes, pd.DataFrame):
+        if isinstance(init, pd.DataFrame):
             ## populate the table with the contents from a dataframe
-            idx = dtypes.index
+            idx = init.index
             # figure out the primary key
             if idx.name is not None:
                 if primary_key is not None and primary_key != idx.name:
                     raise ValueError("primary key mismatch")
                 primary_key = idx.name
             # extract the data and column names
-            data = [list(dtypes.as_matrix()[i]) for i in xrange(len(dtypes))]
-            names = list(dtypes.columns)
+            data = [list(init.as_matrix()[i]) for i in xrange(len(init))]
+            names = list(init.columns)
             if primary_key is not None:
-                for i in xrange(len(dtypes)):
+                for i in xrange(len(init)):
                     data[i].insert(0, idx[i])
                 names.insert(0, primary_key)
             # parse data types
             d = dict(zip(names, data[0]))
-            dtypes = dict_to_dtypes(d, order=names)
+            init = dict_to_dtypes(d, order=names)
             # coerce data with the data types we just extracted
-            data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
+            data = [[init[i][1](x[i]) for i in xrange(len(x))] for x in data]
         else:
             data = None
 
         args = []
 
-        for label, dtype in dtypes:
+        for label, dtype in init:
             # parse the python type into a SQL type
             if dtype is None:
                 sqltype = "NULL"
