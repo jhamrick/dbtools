@@ -52,6 +52,48 @@ class Table(object):
                autoincrement=False, verbose=False):
         """Create a table called `name` in the database `db`.
 
+        Depending on what is given for the `init` parameter, this method
+        has several different behaviors.
+
+        1. `init` is a list of 2-tuples.
+
+               Each tuple corresponds to a desired column and has the
+               format (column name, data type).  An empty table will be
+               created with these column names and data types, in the
+               order that they are given in the list.
+
+        2. `init` is a pandas DataFrame.
+
+               The column names of the DataFrame will be used as column
+               names in the table, and the datatype of each column will
+               be inferred by the first row of data in the DataFrame.
+
+               If the DataFrame has an index name, a primary key column
+               will be created (it will also be AUTOINCREMENT if
+               `autoincrement` is True) by that name and its values will
+               be the index of the DataFrame.
+
+               The corresponding values for the other columns will be
+               the DataFrame's actual matrix data.
+
+        3. `init` is a dictionary or list of dictionaries.
+
+               The dictionary keys will be used as column names in the
+               table, in alphabetical order, and the datatype of each
+               column will be inferred from the corresponding values in
+               the dictionary or dictionaries.
+
+               If `primary_key` is given and it corresponds to a key
+               name, that column will be created with PRIMARY KEY (it
+               will also be AUTOINCREMENT if `autoincrement` is
+               True). If it does not correspond to a key name, a new
+               primary key column will be created with values ranging
+               from 1 to N, where N is the number of dictionaries given.
+
+               The Table data will be populated with appropriate values
+               from the dictionary or dictionaries.
+
+
         Parameters
         ----------
         db : string
@@ -60,9 +102,7 @@ class Table(object):
         name : string
             Name of the desired table.
 
-        dtypes : list of 2-tuples
-            Each tuple corresponds a desired column and has the format
-            (column name, data type).
+        init : see above
 
         primary_key : string (default=None)
             Name of the primary key column. If None, no primary key is
