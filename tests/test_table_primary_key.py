@@ -4,11 +4,13 @@ import os
 from nose.tools import raises
 
 from dbtools import Table
-from . import DBNAME
+from . import DBNAME, RewriteDocstringMeta
 from test_table import TestTable
 
 
 class TestTablePrimaryKey(TestTable):
+
+    __metaclass__ = RewriteDocstringMeta
 
     def setup(self):
         if os.path.exists(DBNAME):

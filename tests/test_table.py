@@ -5,10 +5,12 @@ from nose.tools import raises
 from sqlite3 import OperationalError
 
 from dbtools import Table
-from . import DBNAME
+from . import DBNAME, RewriteDocstringMeta
 
 
 class TestTable(object):
+
+    __metaclass__ = RewriteDocstringMeta
 
     dtypes = (
         ('id', int),
