@@ -14,6 +14,7 @@ install:
 
 clean:
 	$(PYCMD) clean --all
+	rm -rf dist
 	rm -f MANIFEST
 	rm -f README
 	rm -f *.pyc
