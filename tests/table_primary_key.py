@@ -40,6 +40,15 @@ class TestTablePrimaryKey(TestTable):
         """Check that the primary key is set"""
         assert self.tbl.primary_key == 'id'
 
+    def test_create_from_dataframe(self):
+        """Create a table from a dataframe"""
+        self.insert()
+        data = self.tbl.select()
+        data.index.name = None
+        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True,
+                           primary_key='id', autoincrement=True)
+        self.check(self.idata, tbl.select())
+
     @raises(ValueError)
     def test_create_from_dataframe_invalid_pk(self):
         """Create a table from a dataframe with invalid primary key"""

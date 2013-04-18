@@ -77,7 +77,7 @@ class TestTable(object):
         self.insert()
         data = self.tbl.select()
         tbl = Table.create(DBNAME, "Foo_2", data, verbose=True)
-        assert (tbl.select() == data).as_matrix().all()
+        self.check(self.idata, tbl.select())
 
     def test_create_from_dicts(self):
         """Create a table from dictionaries"""
