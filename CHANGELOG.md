@@ -2,7 +2,12 @@
 
 ## Version 0.03
 
-* Add Makefile and other minor installation modifications
+* Fix an issue in `Table` initialization from `DataFrame` (#5)
+* Allow `Table` initialization from a dictionary of list of
+  dictionaries (#2)
+* Create testing metaclass to modify test case docstrings to include
+  class name
+* Add `Makefile` and other minor installation modifications
 
 ## Version 0.02
 
