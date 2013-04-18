@@ -4,11 +4,13 @@ import os
 from nose.tools import raises
 
 from dbtools import Table
-from . import DBNAME
-from test_table import TestTable
+from . import DBNAME, RewriteDocstringMeta
+from table_base import TestTable
 
 
 class TestTablePrimaryKey(TestTable):
+
+    __metaclass__ = RewriteDocstringMeta
 
     def setup(self):
         if os.path.exists(DBNAME):
@@ -38,6 +40,15 @@ class TestTablePrimaryKey(TestTable):
         """Check that the primary key is set"""
         assert self.tbl.primary_key == 'id'
 
+    def test_create_from_dataframe(self):
+        """Create a table from a dataframe"""
+        self.insert()
+        data = self.tbl.select()
+        data.index.name = None
+        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True,
+                           primary_key='id', autoincrement=True)
+        self.check(self.idata, tbl.select())
+
     @raises(ValueError)
     def test_create_from_dataframe_invalid_pk(self):
         """Create a table from a dataframe with invalid primary key"""
@@ -46,6 +57,22 @@ class TestTablePrimaryKey(TestTable):
         Table.create(
             DBNAME, "Foo_2", data,
             primary_key='foo', verbose=True)
+
+    def test_create_from_dicts(self):
+        """Create a table from dictionaries"""
+        cols = zip(*self.dtypes)[0]
+        dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
+                 for d in self.idata]
+
+        tbl = Table.create(
+            DBNAME, "Bar", dicts, verbose=True,
+            primary_key='id', autoincrement=True)
+
+        self.check_index(self.idata, tbl.select())
+        for idx, col in enumerate(cols):
+            if col == 'id':
+                continue
+            self.check_data(self.idata[:, [0, idx]], tbl[col])
 
     def test_select_columns(self):
         """Make sure columns of selected data are correct"""

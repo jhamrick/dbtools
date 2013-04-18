@@ -48,9 +48,51 @@ class Table(object):
         return False
 
     @classmethod
-    def create(cls, db, name, dtypes, primary_key=None,
+    def create(cls, db, name, init, primary_key=None,
                autoincrement=False, verbose=False):
         """Create a table called `name` in the database `db`.
+
+        Depending on what is given for the `init` parameter, this method
+        has several different behaviors.
+
+        1. `init` is a list of 2-tuples.
+
+               Each tuple corresponds to a desired column and has the
+               format (column name, data type).  An empty table will be
+               created with these column names and data types, in the
+               order that they are given in the list.
+
+        2. `init` is a pandas DataFrame.
+
+               The column names of the DataFrame will be used as column
+               names in the table, and the datatype of each column will
+               be inferred by the first row of data in the DataFrame.
+
+               If the DataFrame has an index name, a primary key column
+               will be created (it will also be AUTOINCREMENT if
+               `autoincrement` is True) by that name and its values will
+               be the index of the DataFrame.
+
+               The corresponding values for the other columns will be
+               the DataFrame's actual matrix data.
+
+        3. `init` is a dictionary or list of dictionaries.
+
+               The dictionary keys will be used as column names in the
+               table, in alphabetical order, and the datatype of each
+               column will be inferred from the corresponding values in
+               the dictionary or dictionaries.
+
+               If `primary_key` is given and it corresponds to a key
+               name, that column will be created with PRIMARY KEY (it
+               will also be AUTOINCREMENT if `autoincrement` is
+               True). If it does not correspond to a key name, a new
+               primary key column will be created with values ranging
+               from 1 to N, where N is the number of dictionaries given.
+
+               The Table data will be populated with appropriate values
+               from the dictionary or dictionaries.
+
 
         Parameters
         ----------
@@ -60,9 +102,7 @@ class Table(object):
         name : string
             Name of the desired table.
 
-        dtypes : list of 2-tuples
-            Each tuple corresponds a desired column and has the format
-            (column name, data type).
+        init : see above
 
         primary_key : string (default=None)
             Name of the primary key column. If None, no primary key is
@@ -80,19 +120,20 @@ class Table(object):
 
         """
 
-        if isinstance(dtypes, pd.DataFrame):
+        if isinstance(init, pd.DataFrame):
             ## populate the table with the contents from a dataframe
-            idx = dtypes.index
+
+            idx = init.index
             # figure out the primary key
             if idx.name is not None:
                 if primary_key is not None and primary_key != idx.name:
                     raise ValueError("primary key mismatch")
                 primary_key = idx.name
             # extract the data and column names
-            data = [list(dtypes.as_matrix()[i]) for i in xrange(len(dtypes))]
-            names = list(dtypes.columns)
-            if primary_key is not None:
-                for i in xrange(len(dtypes)):
+            data = [list(init.as_matrix()[i]) for i in xrange(len(init))]
+            names = list(init.columns)
+            if idx.name is not None:
+                for i in xrange(len(init)):
                     data[i].insert(0, idx[i])
                 names.insert(0, primary_key)
             # parse data types
@@ -100,7 +141,25 @@ class Table(object):
             dtypes = dict_to_dtypes(d, order=names)
             # coerce data with the data types we just extracted
             data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
+            # insert primary key column, if requested
+            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+                dtypes.insert(0, (primary_key, int))
+
+        elif hasattr(init, 'keys') or (
+                hasattr(init, '__iter__') and hasattr(init[0], 'keys')):
+            ## populate the table with the contents from dictionaries
+
+            if hasattr(init, 'keys'):
+                init = [init]
+            dtypes = dict_to_dtypes(init)
+            data = [[dtype(init[i][col]) for col, dtype in dtypes]
+                    for i in xrange(len(init))]
+            # insert primary key column, if requested
+            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+                dtypes.insert(0, (primary_key, int))
+
         else:
+            dtypes = init
             data = None
 
         args = []
