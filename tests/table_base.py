@@ -19,6 +19,13 @@ class TestTable(object):
         ('height', float)
     )
 
+    idata = np.array([
+        [2, 'Alyssa P. Hacker', 25, 66.25],
+        [4, 'Ben Bitdiddle', 24, 70.1],
+        [6, 'Louis Reasoner', 26, 68.0],
+        [8, 'Eva Lu Ator', 29, 67.42]
+    ], dtype='object')
+
     def setup(self):
         if os.path.exists(DBNAME):
             os.remove(DBNAME)
@@ -29,12 +36,6 @@ class TestTable(object):
         os.remove(DBNAME)
 
     def insert(self):
-        self.idata = np.array([
-            [2, 'Alyssa P. Hacker', 25, 66.25],
-            [4, 'Ben Bitdiddle', 24, 70.1],
-            [6, 'Louis Reasoner', 26, 68.0],
-            [8, 'Eva Lu Ator', 29, 67.42]
-        ], dtype='object')
         self.tbl.insert(self.idata)
 
     def check_data(self, indata, outdata):
@@ -77,6 +78,18 @@ class TestTable(object):
         data = self.tbl.select()
         tbl = Table.create(DBNAME, "Foo_2", data, verbose=True)
         assert (tbl.select() == data).as_matrix().all()
+
+    def test_create_from_dicts(self):
+        """Create a table from dictionaries"""
+        cols = zip(*self.dtypes)[0]
+        dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
+                 for d in self.idata]
+
+        tbl = Table.create(DBNAME, "Bar", dicts, verbose=True)
+
+        self.check_index(self.idata, tbl.select())
+        for idx, col in enumerate(cols):
+            self.check_data(self.idata[:, [idx]], tbl[col])
 
     @raises(OperationalError)
     def test_drop(self):
