@@ -1,4 +1,3 @@
 from table_base import TestTable
 from table_primary_key import TestTablePrimaryKey
 from table_primary_key_autoincrement import TestTablePrimaryKeyAutoincrement
-
