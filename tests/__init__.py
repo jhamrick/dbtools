@@ -1,4 +1,4 @@
-DBNAME = 'tests/test.db'
+DBNAME = 'test.db'
 
 
 def update_docstring(name, olddoc):
