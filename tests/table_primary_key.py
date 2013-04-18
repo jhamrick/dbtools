@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from dbtools import Table
 from . import DBNAME, RewriteDocstringMeta
-from test_table import TestTable
+from table_base import TestTable
 
 
 class TestTablePrimaryKey(TestTable):
