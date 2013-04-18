@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
-import shutil
-
-shutil.copy("README.md", "README")
 
 setup(
     name='dbtools',
-    version='0.03',
+    version='0.03.1',
     description='Lightweight SQLite interface',
     author='Jessica B. Hamrick',
     author_email='jhamrick@berkeley.edu',
