@@ -1,2 +1,5 @@
+include README.md
+include CHANGELOG.md
+include COPYING.txt
 recursive-include dbtools *.py
 recursive-include tests *.py
