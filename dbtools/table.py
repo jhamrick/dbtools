@@ -151,6 +151,9 @@ class Table(object):
             dtypes = dict_to_dtypes(init)
             data = [[dtype(init[i][col]) for col, dtype in dtypes]
                     for i in xrange(len(init))]
+            # insert primary key column, if requested
+            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+                dtypes.insert(0, (primary_key, int))
 
         else:
             dtypes = init

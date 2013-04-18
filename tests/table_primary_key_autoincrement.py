@@ -12,6 +12,13 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
 
     __metaclass__ = RewriteDocstringMeta
 
+    idata = np.array([
+        ['Alyssa P. Hacker', 25, 66.25],
+        ['Ben Bitdiddle', 24, 70.1],
+        ['Louis Reasoner', 26, 68.0],
+        ['Eva Lu Ator', 29, 67.42]
+    ], dtype='object')
+
     def setup(self):
         if os.path.exists(DBNAME):
             os.remove(DBNAME)
@@ -21,12 +28,6 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
             verbose=True)
 
     def insert(self):
-        self.idata = np.array([
-            ['Alyssa P. Hacker', 25, 66.25],
-            ['Ben Bitdiddle', 24, 70.1],
-            ['Louis Reasoner', 26, 68.0],
-            ['Eva Lu Ator', 29, 67.42]
-        ], dtype='object')
         self.tbl.insert(self.idata)
 
     def check_data(self, indata, outdata):
@@ -41,6 +42,21 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
                 np.array(outdata.index)).all():
             out = False
         return out
+
+    def test_create_from_dicts(self):
+        """Create a table from dictionaries"""
+        dtypes = self.dtypes[1:]
+        cols = zip(*dtypes)[0]
+        dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
+                 for d in self.idata]
+
+        tbl = Table.create(
+            DBNAME, "Bar", dicts, verbose=True,
+            primary_key='id', autoincrement=True)
+
+        self.check_index(self.idata, tbl.select())
+        for idx, col in enumerate(cols):
+            self.check_data(self.idata[:, [idx]], tbl[col])
 
     def test_insert_list(self):
         """Insert a list"""
