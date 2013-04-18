@@ -132,7 +132,7 @@ class Table(object):
             # extract the data and column names
             data = [list(init.as_matrix()[i]) for i in xrange(len(init))]
             names = list(init.columns)
-            if primary_key is not None:
+            if idx.name is not None:
                 for i in xrange(len(init)):
                     data[i].insert(0, idx[i])
                 names.insert(0, primary_key)
@@ -141,6 +141,9 @@ class Table(object):
             dtypes = dict_to_dtypes(d, order=names)
             # coerce data with the data types we just extracted
             data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
+            # insert primary key column, if requested
+            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+                dtypes.insert(0, (primary_key, int))
 
         elif hasattr(init, 'keys') or (
                 hasattr(init, '__iter__') and hasattr(init[0], 'keys')):
