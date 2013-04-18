@@ -1,8 +1,8 @@
 # dbtools
 A simple interface to SQLite databases.
 
-**Version**: 0.02  
-**Date**: 04/14/2013  
+**Version**: 0.03  
+**Date**: 04/17/2013  
 **Author**: Jessica B. Hamrick  
 
 ## Overview
