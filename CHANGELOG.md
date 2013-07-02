@@ -9,7 +9,7 @@
   class name
 * Add `Makefile` and other minor installation modifications
 
-# Version 0.03.1
+### Version 0.03.1
 
 * Fix `pip install` installation bug
 
