@@ -244,11 +244,11 @@ class Table(object):
         self.repr = "%s(%s)" % (self.name, args)
 
         # get the column names
-        cols = args.split(", ")
+        cols = [a.strip() for a in args.split(",")]
         self.columns = tuple([x.split(" ")[0] for x in cols])
 
         # parse primary key, if any
-        pk = [x.split(" ", 1)[1].find("PRIMARY KEY") > -1 for x in cols]
+        pk = [bool(re.search(r"PRIMARY KEY", x)) for x in cols]
         primary_key = np.nonzero(pk)[0]
         if len(primary_key) > 1:
             raise ValueError("more than one primary key: %s" % primary_key)
@@ -258,7 +258,7 @@ class Table(object):
             self.primary_key = None
 
         # parse autoincrement, if applicable
-        ai = [x.split(" ", 1)[1].find("AUTOINCREMENT") > -1 for x in cols]
+        ai = [bool(re.search(r"AUTOINCREMENT", x)) for x in cols]
         autoincrement = np.nonzero(ai)[0]
         if len(autoincrement) > 1:
             raise ValueError("more than one autoincrementing "
