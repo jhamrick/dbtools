@@ -7,20 +7,17 @@ from .util import sql_execute, dict_to_dtypes
 
 
 class Table(object):
-    """A frame-like interface to a SQLite database table.
-
-    """
 
     @classmethod
     def list_tables(cls, db, verbose=False):
-        """
+        r"""
         Get the list of tables present in the database `db`.
 
         Parameters
         ----------
         db : string
             Path to the SQLite database.
-        verbose : bool (default=False)
+        verbose : bool (optional)
             Print out SQL command information.
 
         Returns
@@ -44,23 +41,22 @@ class Table(object):
 
     @classmethod
     def exists(cls, db, name, verbose=False):
-        """Check if a table called `name` exists in the database `db`.
+        r"""
+        Check if a table called `name` exists in the database `db`.
 
         Parameters
         ----------
         db : string
             Path to the SQLite database.
-
         name : string
             Name of the desired table.
-
-        verbose : bool (default=False)
+        verbose : bool (optional)
             Print out SQL command information.
-
 
         Returns
         -------
-        True if the table exists, False otherwise
+        exists : bool
+           True if the table exists, False otherwise
 
         """
 
@@ -81,7 +77,8 @@ class Table(object):
     @classmethod
     def create(cls, db, name, init, primary_key=None,
                autoincrement=False, verbose=False):
-        """Create a table called `name` in the database `db`.
+        r"""
+        Create a table called `name` in the database `db`.
 
         Depending on what is given for the `init` parameter, this method
         has several different behaviors.
@@ -100,7 +97,7 @@ class Table(object):
                be inferred by the first row of data in the DataFrame.
 
                If the DataFrame has an index name, a primary key column
-               will be created (it will also be AUTOINCREMENT if
+               will be created (it will also be ``AUTOINCREMENT`` if
                `autoincrement` is True) by that name and its values will
                be the index of the DataFrame.
 
@@ -115,8 +112,8 @@ class Table(object):
                the dictionary or dictionaries.
 
                If `primary_key` is given and it corresponds to a key
-               name, that column will be created with PRIMARY KEY (it
-               will also be AUTOINCREMENT if `autoincrement` is
+               name, that column will be created with ``PRIMARY KEY``
+               (it will also be ``AUTOINCREMENT`` if `autoincrement` is
                True). If it does not correspond to a key name, a new
                primary key column will be created with values ranging
                from 1 to N, where N is the number of dictionaries given.
@@ -124,30 +121,26 @@ class Table(object):
                The Table data will be populated with appropriate values
                from the dictionary or dictionaries.
 
-
         Parameters
         ----------
         db : string
             Path to the SQLite database.
-
         name : string
             Name of the desired table.
-
-        init : see above
-
-        primary_key : string (default=None)
+        init : list, pandas.DataFrame, or dictionary
+            See above
+        primary_key : string (optional)
             Name of the primary key column. If None, no primary key is
             set.
-
-        autoincrement : bool (default=False)
+        autoincrement : bool (optional)
             Set the primary key column to automatically increment.
-
-        verbose : bool (default=False)
+        verbose : bool (optional)
             Print out SQL command information.
 
         Returns
         -------
-        Table object
+        tbl : dbtools.Table
+            Newly created Table object
 
         """
 
@@ -236,16 +229,16 @@ class Table(object):
         return tbl
 
     def __init__(self, db, name, verbose=False):
-        """Create an interface to the table `name` in the database `db`.
+        r"""
+        Creates a frame-like interface to the SQLite table `name` in the
+        database `db`.
 
         Parameters
         ----------
         db : (string)
             The path to the SQLite database.
-
         name : (string)
             The name of the table in the database.
-
         verbose : bool (default=False)
             Print out SQL command information.
 
@@ -302,30 +295,31 @@ class Table(object):
             self.autoincrement = False
 
     def _where(self, args):
-        """Helper function to parse a WHERE statement.
+        r"""
+        Helper function to parse a ``WHERE`` statement.
 
-        The `args` parameter holds the conditional for the WHERE
-        statement. If `args` is a sequence, then the first element is
-        the conditional and the second element is an argument or list of
-        arguments for that conditional (i.e., where there are ? in the
-        conditional).
+        The `args` parameter holds the conditional for the ``WHERE``
+        statement. For example::
 
-        self._where("age=25")
+            self._where("age=25")
 
-        If you need to pass in variable arguments, use question
-        marks, e.g.:
+        If `args` is a sequence, then the first element is the
+        conditional and the second element is an argument or list of
+        arguments for that conditional. Question marks in the
+        conditional correspond to passed arguments::
 
-        self._where("age=?", 25)
-        self._where("age=? OR name=?", (25, "Ben Bitdiddle"))
+            self._where("age=?", 25)
+            self._where("age=? OR name=?", (25, "Ben Bitdiddle"))
 
         Parameters
         ----------
         args : string or (string, value) or (string, (value1, value2, ...))
-            Conditional for the WHERE statement (see above).
+            Conditional for the ``WHERE`` statement (see above).
 
         Returns
         -------
-        2-tuple of (conditional string, argument list)
+        out : tuple
+            2-tuple of (conditional string, argument list)
 
         """
 
@@ -347,7 +341,8 @@ class Table(object):
         return out
 
     def drop(self):
-        """Drop the table from its database.
+        r"""
+        Drop the table from its database.
 
         Note that after calling this method, this Table object will no
         longer function properly, as it will correspond to a table that
@@ -359,17 +354,18 @@ class Table(object):
         sql_execute(self.db, cmd, verbose=self.verbose)
 
     def insert(self, values=None):
-        """Insert values into the table.
+        r"""
+        Insert values into the table.
 
         The `values` parameter should be a list of non-string sequences
         (or a single sequence, which will then be encased in a
         list). Each sequence is handled as follows:
 
-            - If the sequence is a dictionary, then the keys should
+            * If the sequence is a dictionary, then the keys should
               correspond to column names and the values should match the
               data types of the columns.
 
-            - If the sequence is not a dictionary, it should have length
+            * If the sequence is not a dictionary, it should have length
               equal to the number of columns and each element should be
               a value to be inserted in the corresponding column.
 
@@ -426,7 +422,8 @@ class Table(object):
             sql_execute(self.db, cmd, verbose=self.verbose)
 
     def select(self, columns=None, where=None):
-        """Select data from the table.
+        r"""
+        Select data from the table.
 
         Parameters
         ----------
@@ -437,21 +434,22 @@ class Table(object):
 
         where : (default=None)
             Additional filtering to perform on the data akin to the
-            'WHERE' SQL statement, e.g.:
+            ``WHERE`` SQL statement, e.g.::
 
-            where="age=25"
+                where="age=25"
 
             If you need to pass in variable arguments, use question
-            marks, e.g.:
+            marks, e.g.::
 
-            where=("age=?", 25)
-            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+                where=("age=?", 25)
+                where=("age=? OR name=?", (25, "Ben Bitdiddle"))
 
         Returns
         -------
-        A pandas DataFrame containing the queried data. Column names
-        correspond to the table column names, and if there is a primary
-        key column, it will be used as the index.
+        data : pandas.DataFrame
+            A pandas DataFrame containing the queried data. Column names
+            correspond to the table column names, and if there is a
+            primary key column, it will be used as the index.
 
         """
 
@@ -493,23 +491,25 @@ class Table(object):
         return data
 
     def __getitem__(self, key):
-        """Select data from the table.
+        r"""
+        Select data from the table.
 
-        This method wraps around `self.select` in a few ways.
+        This method wraps around :meth:`~dbtools.Table.select` in
+        a few ways.
 
         1. If a string is given, the column with that name is
-        selected. For example:
+        selected. For example::
 
             table['name']
 
         2. If a list of strings is given, the columns with those names
-        are selected. For example:
+        are selected. For example::
 
             table['name', 'age']
 
         3. If the table has an autoincrementing primary key, you can use
         integer indexing and slicing syntax to select rows by their
-        primary keys. For example:
+        primary keys. For example::
 
             table[0]
             table[:5]
@@ -517,7 +517,9 @@ class Table(object):
 
         Returns
         -------
-        The output of `self.select` called as described above.
+        data : pandas.DataFrame
+            The output of :meth:`~dbtools.Table.select`, called as
+            described above.
 
         """
 
@@ -563,24 +565,25 @@ class Table(object):
         return data
 
     def update(self, values, where=None):
-        """Update data in the table.
+        r"""
+        Update data in the table.
 
         Parameters
         ----------
         values : dict
             The column names (keys) and new values to update.
 
-        where : (default=None)
+        where : str or tuple (optional)
             Additional filtering to perform on the data akin to the
-            'WHERE' SQL statement, e.g.:
+            ``WHERE`` SQL statement, e.g.::
 
-            where="age=25"
+                where="age=25"
 
             If you need to pass in variable arguments, use question
-            marks, e.g.:
+            marks, e.g.::
 
-            where=("age=?", 25)
-            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+                where=("age=?", 25)
+                where=("age=? OR name=?", (25, "Ben Bitdiddle"))
 
         """
 
@@ -604,23 +607,24 @@ class Table(object):
         sql_execute(self.db, cmd, verbose=self.verbose)
 
     def delete(self, where=None):
-        """Delete rows from the table.
+        r"""
+        Delete rows from the table.
 
         Parameters
         ----------
         where : (default=None)
             Filtering to determine which rows should be deleted, akin to
-            the 'WHERE' SQL statement, e.g.:
+            the ``WHERE`` SQL statement, e.g.::
 
-            where="age=25"
+                where="age=25"
 
             If you need to pass in variable arguments, use question
-            marks, e.g.:
+            marks, e.g.::
 
-            where=("age=?", 25)
-            where=("age=? OR name=?", (25, "Ben Bitdiddle"))
+                where=("age=?", 25)
+                where=("age=? OR name=?", (25, "Ben Bitdiddle"))
 
-            NOTE: If where is None, then ALL rows will be deleted!
+            NOTE: If `where` is `None`, then ALL rows will be deleted!
 
         """
 
@@ -638,19 +642,23 @@ class Table(object):
         sql_execute(self.db, cmd, verbose=self.verbose)
 
     def save_csv(self, path, columns=None, where=None):
-        """Write table data to a CSV text file.
+        r"""
+        Write table data to a CSV text file.
 
         Takes in a `path` for the file as well as any arguments and/or
-        keyword arguments to be passed to `self.select`. The output of
-        `self.select` with those arguments is what will be written to
-        the csv file.
+        keyword arguments to be passed to
+        :meth:`~dbtools.Table.select`. The output of
+        :meth:`~dbtools.Table.select` with those arguments is what
+        will be written to the csv file.
 
         Parameters
         ----------
         path : string
             Path to save the csv file.
-        columns : (default=None) See `self.select`
-        where : (default=None) See `self.select`
+        columns : (optional)
+            See `select`
+        where : (optional)
+            See `select`
 
         """
 
