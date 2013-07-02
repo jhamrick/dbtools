@@ -11,5 +11,5 @@ Source documentation
 .. toctree::
    :maxdepth: 4
 
-   dbtools.table.Table
+   dbtools.Table
    dbtools.util
