@@ -324,4 +324,4 @@ autosummary_generate = False
 
 # -- Options for numpydoc --------------------------------------------
 
-numpydoc_show_class_members = False
+numpydoc_show_class_members = True
