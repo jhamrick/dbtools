@@ -1,0 +1,318 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>dbtools &mdash; dbtools 0.03.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.03.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dbtools 0.03.3 documentation" href="#" />
+    <link rel="next" title="Table class" href="dbtools.Table.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dbtools.Table.html" title="Table class"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">dbtools 0.03.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="dbtools">
+<h1>dbtools<a class="headerlink" href="#dbtools" title="Permalink to this headline">¶</a></h1>
+<p>A simple interface to SQLite databases.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>This module handles simple interfacing with a SQLite database. Inspired
+by <a class="reference external" href="https://pypi.python.org/pypi/ipython-sql">ipython-sql</a>,
+<tt class="docutils literal"><span class="pre">dbtools</span></tt> returns <a class="reference external" href="http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe">pandas
+DataFrame</a>
+objects from <tt class="docutils literal"><span class="pre">SELECT</span></tt> queries, and can handle basic forms of other SQL
+statements (<tt class="docutils literal"><span class="pre">CREATE</span></tt>, <tt class="docutils literal"><span class="pre">INSERT</span></tt>, <tt class="docutils literal"><span class="pre">UPDATE</span></tt>, <tt class="docutils literal"><span class="pre">DELETE</span></tt>, and
+<tt class="docutils literal"><span class="pre">DROP</span></tt>).</p>
+<p>The goal is <em>not</em> to replicate the full functionality of
+<a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a> or really to be used for
+object-relational mapping at all. This is meant to be used more for
+scientific data collection (e.g., behavioral experiments) as convenient
+access to a robust form of storage.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The easiest way to get <tt class="docutils literal"><span class="pre">dbtools</span></tt> is with <tt class="docutils literal"><span class="pre">pip</span></tt>:</p>
+<div class="code bash highlight-python"><pre>pip install dbtools</pre>
+</div>
+<p>Alternately, you can clone the repository and install from source:</p>
+<div class="code bash highlight-python"><pre>git clone git@github.com:jhamrick/dbtools.git
+cd dbtools
+python setup.py install</pre>
+</div>
+<p>There is also a <tt class="docutils literal"><span class="pre">Makefile</span></tt> in the root of the repository which is just
+a convenience wrapper around <tt class="docutils literal"><span class="pre">setup.py</span></tt>. So, <tt class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></tt> is
+equivalent to <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt>. You can use whichever one you
+prefer.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="create-and-load">
+<h3>Create and load<a class="headerlink" href="#create-and-load" title="Permalink to this headline">¶</a></h3>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dbtools</span> <span class="kn">import</span> <span class="n">Table</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">Table</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;data.db&quot;</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">[(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+<span class="gp">... </span><span class="p">(</span><span class="s">&#39;height&#39;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)],</span>
+<span class="gp">... </span><span class="n">primary_key</span><span class="o">=</span><span class="s">&#39;id&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="n">autoincrement</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span>
+<span class="go">People(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, height REAL)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">tbl</span><span class="p">)</span>
+<span class="go">&lt;class &#39;dbtools.table.Table&#39;&gt;</span>
+</pre></div>
+</div>
+<p>If a table already exists, we can just directly create a Table object:</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span> <span class="o">=</span> <span class="n">Table</span><span class="p">(</span><span class="s">&quot;data.db&quot;</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span>
+<span class="go">People(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER, height REAL)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">columns</span>
+<span class="go">(u&#39;id&#39;, u&#39;name&#39;, u&#39;age&#39;, u&#39;height&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">primary_key</span>
+<span class="go">u&#39;id&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">autoincrement</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="insert">
+<h3>Insert<a class="headerlink" href="#insert" title="Permalink to this headline">¶</a></h3>
+<p>Inserting with a list (excluding <tt class="docutils literal"><span class="pre">id</span></tt>, because it autoincrements):</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">insert</span><span class="p">([</span><span class="s">&quot;Alyssa P. Hacker&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mf">66.24</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="go">                name  age  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   25   66.24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">())</span>
+<span class="go">&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;</span>
+</pre></div>
+</div>
+<p>Inserting with a dictionary:</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">insert</span><span class="p">({</span>
+<span class="gp">... </span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Ben Bitdiddle&#39;</span><span class="p">,</span>
+<span class="gp">... </span><span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+<span class="gp">... </span><span class="s">&#39;height&#39;</span><span class="p">:</span> <span class="mf">70.1</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="go">                name  age  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   25   66.24</span>
+<span class="go">2      Ben Bitdiddle   24   70.10</span>
+</pre></div>
+</div>
+<p>You can insert as many things as you want as a time &#8211; just pass them in
+as a list of lists and/or dictionaries.</p>
+</div>
+<div class="section" id="select">
+<h3>Select<a class="headerlink" href="#select" title="Permalink to this headline">¶</a></h3>
+<p>The previous two examples already used an instance of selection with
+<tt class="docutils literal"><span class="pre">tbl.select()</span></tt>, which is the equivalent of doing
+<tt class="docutils literal"><span class="pre">FROM</span> <span class="pre">People</span> <span class="pre">SELECT</span> <span class="pre">*</span></tt>. You can use slicing to select rows (but only
+if the primary key column is an integer and autoincrements). Note that
+because SQLite databases are one-indexed, indexing the zeroth element
+returns an empty <tt class="docutils literal"><span class="pre">DataFrame</span></tt>.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">                name  age  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   25   66.24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="go">             name  age  height</span>
+<span class="go">id</span>
+<span class="go">2   Ben Bitdiddle   24    70.1</span>
+</pre></div>
+</div>
+<p>If you pass in a string or sequence of strings, it will treat them as
+column names and select those columns:</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">]</span>
+<span class="go">                name  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   66.24</span>
+<span class="go">2      Ben Bitdiddle   70.10</span>
+</pre></div>
+</div>
+<p>More advanced selection can be done through the <tt class="docutils literal"><span class="pre">select</span></tt> method by
+specifying the <tt class="docutils literal"><span class="pre">where</span></tt> keyword argument (and you can use the <tt class="docutils literal"><span class="pre">?</span></tt>
+syntax from the <tt class="docutils literal"><span class="pre">sqlite3</span></tt> library for untrusted inputs):</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="s">&#39;age&gt;24&#39;</span><span class="p">)</span>
+<span class="go">                name  age  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   25   66.24</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">],</span> <span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;age&gt;?&#39;</span><span class="p">,</span> <span class="mi">24</span><span class="p">))</span>
+<span class="go">                name  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   66.24</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update">
+<h3>Update<a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h3>
+<p>Updating data in the table works by taking a dictionary (with the keys
+being columns, and values being new data) and (optionally) a <tt class="docutils literal"><span class="pre">where</span></tt>
+keyword argument like in the <tt class="docutils literal"><span class="pre">select</span></tt> method to specify what data
+should be updated.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">26</span><span class="p">},</span> <span class="n">where</span><span class="o">=</span><span class="s">&#39;id=1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="go">                name  age  height</span>
+<span class="go">id</span>
+<span class="go">1   Alyssa P. Hacker   26   66.24</span>
+<span class="go">2      Ben Bitdiddle   24   70.10</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete">
+<h3>Delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h3>
+<p>Deleting a row or rows requires specifying a <tt class="docutils literal"><span class="pre">where</span></tt> keyword argument
+like in <tt class="docutils literal"><span class="pre">select</span></tt> and <tt class="docutils literal"><span class="pre">update</span></tt> (if it is not given, all rows are
+deleted).</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="s">&#39;height&lt;70&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="go">             name  age  height</span>
+<span class="go">id</span>
+<span class="go">2   Ben Bitdiddle   24    70.1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="drop">
+<h3>Drop<a class="headerlink" href="#drop" title="Permalink to this headline">¶</a></h3>
+<p>Finally, the <tt class="docutils literal"><span class="pre">drop</span></tt> method is used to drop (delete) an entire table
+from its database. Of course, this means it can&#8217;t be accessed afterwards
+because it no longer exists.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">()</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+  File <span class="nb">&quot;dbtools/table.py&quot;</span>, line <span class="m">339</span>, in <span class="n">select</span>
+    <span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">cmd</span><span class="p">)</span>
+<span class="gr">sqlite3.OperationalError</span>: <span class="n">no such table: People</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="source-documentation">
+<h2>Source documentation<a class="headerlink" href="#source-documentation" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dbtools.Table.html">Table class</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dbtools.util.html">Utilities</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">dbtools</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#create-and-load">Create and load</a></li>
+<li><a class="reference internal" href="#insert">Insert</a></li>
+<li><a class="reference internal" href="#select">Select</a></li>
+<li><a class="reference internal" href="#update">Update</a></li>
+<li><a class="reference internal" href="#delete">Delete</a></li>
+<li><a class="reference internal" href="#drop">Drop</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#source-documentation">Source documentation</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="dbtools.Table.html"
+                        title="next chapter">Table class</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="dbtools.Table.html" title="Table class"
+             >next</a> |</li>
+        <li><a href="#">dbtools 0.03.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Jessica B. Hamrick.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Table class &mdash; dbtools 0.03.3 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.03.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="dbtools 0.03.3 documentation" href="index.html" />
+    <link rel="prev" title="dbtools" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="dbtools"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">dbtools 0.03.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="table-class">
+<h1>Table class<a class="headerlink" href="#table-class" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="dbtools.Table">
+<em class="property">class </em><tt class="descclassname">dbtools.</tt><tt class="descname">Table</tt><big>(</big><em>db</em>, <em>name</em>, <em>verbose=False</em><big>)</big><a class="headerlink" href="#dbtools.Table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Creates a frame-like interface to the SQLite table <tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt> in the
+database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>db</strong> : (string)</p>
+<blockquote>
+<div><p>The path to the SQLite database.</p>
+</div></blockquote>
+<p><strong>name</strong> : (string)</p>
+<blockquote>
+<div><p>The name of the table in the database.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool (default=False)</p>
+<blockquote class="last">
+<div><p>Print out SQL command information.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dbtools.Table.create" title="dbtools.Table.create"><tt class="xref py py-obj docutils literal"><span class="pre">create</span></tt></a>(db,&nbsp;name,&nbsp;init[,&nbsp;primary_key,&nbsp;...])</td>
+<td>Create a table called <tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt> in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dbtools.Table.delete" title="dbtools.Table.delete"><tt class="xref py py-obj docutils literal"><span class="pre">delete</span></tt></a>([where])</td>
+<td>Delete rows from the table.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dbtools.Table.drop" title="dbtools.Table.drop"><tt class="xref py py-obj docutils literal"><span class="pre">drop</span></tt></a>()</td>
+<td>Drop the table from its database.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dbtools.Table.exists" title="dbtools.Table.exists"><tt class="xref py py-obj docutils literal"><span class="pre">exists</span></tt></a>(db,&nbsp;name[,&nbsp;verbose])</td>
+<td>Check if a table called <tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt> exists in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dbtools.Table.insert" title="dbtools.Table.insert"><tt class="xref py py-obj docutils literal"><span class="pre">insert</span></tt></a>([values])</td>
+<td>Insert values into the table.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dbtools.Table.list_tables" title="dbtools.Table.list_tables"><tt class="xref py py-obj docutils literal"><span class="pre">list_tables</span></tt></a>(db[,&nbsp;verbose])</td>
+<td>Get the list of tables present in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dbtools.Table.save_csv" title="dbtools.Table.save_csv"><tt class="xref py py-obj docutils literal"><span class="pre">save_csv</span></tt></a>(path[,&nbsp;columns,&nbsp;where])</td>
+<td>Write table data to a CSV text file.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-obj docutils literal"><span class="pre">select</span></tt></a>([columns,&nbsp;where])</td>
+<td>Select data from the table.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dbtools.Table.update" title="dbtools.Table.update"><tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></a>(values[,&nbsp;where])</td>
+<td>Update data in the table.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dbtools.Table.__getitem__">
+<tt class="descname">__getitem__</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#dbtools.Table.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select data from the table.</p>
+<p>This method wraps around <a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-meth docutils literal"><span class="pre">select</span></tt></a> in
+a few ways.</p>
+<p>1. If a string is given, the column with that name is
+selected. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">table</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>2. If a list of strings is given, the columns with those names
+are selected. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">table</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>3. If the table has an autoincrementing primary key, you can use
+integer indexing and slicing syntax to select rows by their
+primary keys. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">table</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">table</span><span class="p">[</span><span class="mi">7</span><span class="p">:]</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>The output of <a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-meth docutils literal"><span class="pre">select</span></tt></a>, called as
+described above.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dbtools.Table.list_tables">
+<em class="property">classmethod </em><tt class="descname">list_tables</tt><big>(</big><em>db</em>, <em>verbose=False</em><big>)</big><a class="headerlink" href="#dbtools.Table.list_tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the list of tables present in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>db</strong> : string</p>
+<blockquote>
+<div><p>Path to the SQLite database.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool (optional)</p>
+<blockquote>
+<div><p>Print out SQL command information.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>tables</strong> : list</p>
+<blockquote class="last">
+<div><p>A list of strings corresponding to table names</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dbtools.Table.exists">
+<em class="property">classmethod </em><tt class="descname">exists</tt><big>(</big><em>db</em>, <em>name</em>, <em>verbose=False</em><big>)</big><a class="headerlink" href="#dbtools.Table.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a table called <tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt> exists in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>db</strong> : string</p>
+<blockquote>
+<div><p>Path to the SQLite database.</p>
+</div></blockquote>
+<p><strong>name</strong> : string</p>
+<blockquote>
+<div><p>Name of the desired table.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool (optional)</p>
+<blockquote>
+<div><p>Print out SQL command information.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>exists</strong> : bool</p>
+<blockquote class="last">
+<div><p>True if the table exists, False otherwise</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="dbtools.Table.create">
+<em class="property">classmethod </em><tt class="descname">create</tt><big>(</big><em>db</em>, <em>name</em>, <em>init</em>, <em>primary_key=None</em>, <em>autoincrement=False</em>, <em>verbose=False</em><big>)</big><a class="headerlink" href="#dbtools.Table.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table called <tt class="xref py py-obj docutils literal"><span class="pre">name</span></tt> in the database <tt class="xref py py-obj docutils literal"><span class="pre">db</span></tt>.</p>
+<p>Depending on what is given for the <tt class="xref py py-obj docutils literal"><span class="pre">init</span></tt> parameter, this method
+has several different behaviors.</p>
+<ol class="arabic">
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">init</span></tt> is a list of 2-tuples.</p>
+<blockquote>
+<div><p>Each tuple corresponds to a desired column and has the
+format (column name, data type).  An empty table will be
+created with these column names and data types, in the
+order that they are given in the list.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">init</span></tt> is a pandas DataFrame.</p>
+<blockquote>
+<div><p>The column names of the DataFrame will be used as column
+names in the table, and the datatype of each column will
+be inferred by the first row of data in the DataFrame.</p>
+<p>If the DataFrame has an index name, a primary key column
+will be created (it will also be <tt class="docutils literal"><span class="pre">AUTOINCREMENT</span></tt> if
+<tt class="xref py py-obj docutils literal"><span class="pre">autoincrement</span></tt> is True) by that name and its values will
+be the index of the DataFrame.</p>
+<p>The corresponding values for the other columns will be
+the DataFrame&#8217;s actual matrix data.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">init</span></tt> is a dictionary or list of dictionaries.</p>
+<blockquote>
+<div><p>The dictionary keys will be used as column names in the
+table, in alphabetical order, and the datatype of each
+column will be inferred from the corresponding values in
+the dictionary or dictionaries.</p>
+<p>If <tt class="xref py py-obj docutils literal"><span class="pre">primary_key</span></tt> is given and it corresponds to a key
+name, that column will be created with <tt class="docutils literal"><span class="pre">PRIMARY</span> <span class="pre">KEY</span></tt>
+(it will also be <tt class="docutils literal"><span class="pre">AUTOINCREMENT</span></tt> if <tt class="xref py py-obj docutils literal"><span class="pre">autoincrement</span></tt> is
+True). If it does not correspond to a key name, a new
+primary key column will be created with values ranging
+from 1 to N, where N is the number of dictionaries given.</p>
+<p>The Table data will be populated with appropriate values
+from the dictionary or dictionaries.</p>
+</div></blockquote>
+</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>db</strong> : string</p>
+<blockquote>
+<div><p>Path to the SQLite database.</p>
+</div></blockquote>
+<p><strong>name</strong> : string</p>
+<blockquote>
+<div><p>Name of the desired table.</p>
+</div></blockquote>
+<p><strong>init</strong> : list, pandas.DataFrame, or dictionary</p>
+<blockquote>
+<div><p>See above</p>
+</div></blockquote>
+<p><strong>primary_key</strong> : string (optional)</p>
+<blockquote>
+<div><p>Name of the primary key column. If None, no primary key is
+set.</p>
+</div></blockquote>
+<p><strong>autoincrement</strong> : bool (optional)</p>
+<blockquote>
+<div><p>Set the primary key column to automatically increment.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool (optional)</p>
+<blockquote>
+<div><p>Print out SQL command information.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>tbl</strong> : dbtools.Table</p>
+<blockquote class="last">
+<div><p>Newly created Table object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.drop">
+<tt class="descname">drop</tt><big>(</big><big>)</big><a class="headerlink" href="#dbtools.Table.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop the table from its database.</p>
+<p>Note that after calling this method, this Table object will no
+longer function properly, as it will correspond to a table that
+does not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.insert">
+<tt class="descname">insert</tt><big>(</big><em>values=None</em><big>)</big><a class="headerlink" href="#dbtools.Table.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert values into the table.</p>
+<p>The <tt class="xref py py-obj docutils literal"><span class="pre">values</span></tt> parameter should be a list of non-string sequences
+(or a single sequence, which will then be encased in a
+list). Each sequence is handled as follows:</p>
+<blockquote>
+<div><ul class="simple">
+<li>If the sequence is a dictionary, then the keys should
+correspond to column names and the values should match the
+data types of the columns.</li>
+<li>If the sequence is not a dictionary, it should have length
+equal to the number of columns and each element should be
+a value to be inserted in the corresponding column.</li>
+</ul>
+</div></blockquote>
+<p>If the table has an autoincrementing primary key, then this
+value should be excluded from every sequence as it will be
+filled in automatically.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.select">
+<tt class="descname">select</tt><big>(</big><em>columns=None</em>, <em>where=None</em><big>)</big><a class="headerlink" href="#dbtools.Table.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select data from the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>columns</strong> : (default=None)</p>
+<blockquote>
+<div><p>The column names to select. If None, all columns are
+selected. Can be either a single value (string) or a list of
+strings.</p>
+</div></blockquote>
+<p><strong>where</strong> : (default=None)</p>
+<blockquote>
+<div><p>Additional filtering to perform on the data akin to the
+<tt class="docutils literal"><span class="pre">WHERE</span></tt> SQL statement, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="s">&quot;age=25&quot;</span>
+</pre></div>
+</div>
+<p>If you need to pass in variable arguments, use question
+marks, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=?&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=? OR name=?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="s">&quot;Ben Bitdiddle&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns :</th><td class="field-body"><p class="first"><strong>data</strong> : pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>A pandas DataFrame containing the queried data. Column names
+correspond to the table column names, and if there is a
+primary key column, it will be used as the index.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.update">
+<tt class="descname">update</tt><big>(</big><em>values</em>, <em>where=None</em><big>)</big><a class="headerlink" href="#dbtools.Table.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update data in the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>values</strong> : dict</p>
+<blockquote>
+<div><p>The column names (keys) and new values to update.</p>
+</div></blockquote>
+<p><strong>where</strong> : str or tuple (optional)</p>
+<blockquote class="last">
+<div><p>Additional filtering to perform on the data akin to the
+<tt class="docutils literal"><span class="pre">WHERE</span></tt> SQL statement, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="s">&quot;age=25&quot;</span>
+</pre></div>
+</div>
+<p>If you need to pass in variable arguments, use question
+marks, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=?&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=? OR name=?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="s">&quot;Ben Bitdiddle&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.delete">
+<tt class="descname">delete</tt><big>(</big><em>where=None</em><big>)</big><a class="headerlink" href="#dbtools.Table.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete rows from the table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>where</strong> : (default=None)</p>
+<blockquote class="last">
+<div><p>Filtering to determine which rows should be deleted, akin to
+the <tt class="docutils literal"><span class="pre">WHERE</span></tt> SQL statement, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="s">&quot;age=25&quot;</span>
+</pre></div>
+</div>
+<p>If you need to pass in variable arguments, use question
+marks, e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=?&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="n">where</span><span class="o">=</span><span class="p">(</span><span class="s">&quot;age=? OR name=?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="s">&quot;Ben Bitdiddle&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>NOTE: If <tt class="xref py py-obj docutils literal"><span class="pre">where</span></tt> is <tt class="xref py py-obj docutils literal"><span class="pre">None</span></tt>, then ALL rows will be deleted!</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dbtools.Table.save_csv">
+<tt class="descname">save_csv</tt><big>(</big><em>path</em>, <em>columns=None</em>, <em>where=None</em><big>)</big><a class="headerlink" href="#dbtools.Table.save_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write table data to a CSV text file.</p>
+<p>Takes in a <tt class="xref py py-obj docutils literal"><span class="pre">path</span></tt> for the file as well as any arguments and/or
+keyword arguments to be passed to
+<a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-meth docutils literal"><span class="pre">select</span></tt></a>. The output of
+<a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-meth docutils literal"><span class="pre">select</span></tt></a> with those arguments is what
+will be written to the csv file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>path</strong> : string</p>
+<blockquote>
+<div><p>Path to save the csv file.</p>
+</div></blockquote>
+<p><strong>columns</strong> : (optional)</p>
+<blockquote>
+<div><p>See <a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-obj docutils literal"><span class="pre">select</span></tt></a></p>
+</div></blockquote>
+<p><strong>where</strong> : (optional)</p>
+<blockquote class="last">
+<div><p>See <a class="reference internal" href="#dbtools.Table.select" title="dbtools.Table.select"><tt class="xref py py-obj docutils literal"><span class="pre">select</span></tt></a></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">dbtools</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/dbtools.Table.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="np-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="dbtools"
+             >previous</a> |</li>
+        <li><a href="index.html">dbtools 0.03.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Jessica B. Hamrick.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
