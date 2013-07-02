@@ -225,6 +225,12 @@ class Table(object):
         self.name = str(name)
         self.verbose = bool(verbose)
 
+        if not self.exists(self.db, self.name, self.verbose):
+            raise ValueError(
+                "No such table: %s\n\n"
+                "**  If you were trying to create a new table, please\n"
+                "**  use `Table.create` instead." % name)
+
         # query the database for information about the table
         cmd = ("SELECT sql FROM sqlite_master "
                "WHERE tbl_name='%s' and type='table'" % name)
