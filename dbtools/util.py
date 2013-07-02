@@ -3,10 +3,11 @@ import sqlite3 as sql
 
 
 def dict_to_dtypes(data, order=None):
-    """Parses data types from a dictionary or list of dictionaries.
+    r"""
+    Parses data types from a dictionary or list of dictionaries.
 
     The dictionary keys will be paired with the types of the
-    corresponding values, e.g.:
+    corresponding values, e.g.::
 
         (key, type(data[key]))
 
@@ -14,13 +15,15 @@ def dict_to_dtypes(data, order=None):
     value types should be the same across dictionaries (with the
     exception of NoneType).
 
-    Example:
+    For example::
 
-        [{'name': 'apple', 'fruit': True, 'tree': True},
-         {'name': 'tomato', 'fruit': True, 'tree': False},
-         {'name': 'cucumber', 'fruit': False, 'tree': False}]
+        dict_to_dtypes(data=[
+            {'name': 'apple', 'fruit': True, 'tree': True},
+            {'name': 'tomato', 'fruit': True, 'tree': False},
+            {'name': 'cucumber', 'fruit': False, 'tree': False}
+        ])
 
-        This will return:
+    will return::
 
         [('fruit', bool), ('name', str), ('tree', bool)]
 
@@ -29,13 +32,14 @@ def dict_to_dtypes(data, order=None):
     data : dictionary or list of dictionaries
         Data to extract names and dtypes from.
 
-    order : list of strings (default=None)
+    order : list of strings (optional)
         The order in which to return the dtypes in, by key. If None, the
         dtypes will be sorted alphabetically by key.
 
     Returns
     -------
-    List of 2-tuples, where each tuple has the form (key, dtype)
+    dtypes : list of 2-tuples
+        Each tuple in the list has the form (key, dtype)
 
     """
 
@@ -72,27 +76,27 @@ def dict_to_dtypes(data, order=None):
 
 
 def sql_execute(db, cmd, fetchall=False, verbose=False):
-    """Execute a SQL command `cmd` in database `db`.
+    r"""
+    Execute a SQL command `cmd` in database `db`.
 
     Parameters
     ----------
     db : string
         Path to the SQLite database.
-
     cmd : string or list
-        Command to be executed -- specifically, parameters to be passed
+        Command to be executed. Specifically, these are parameters to be passed
         to `sqlite3.Cursor.execute`. See:
+
         http://docs.python.org/2/library/sqlite3.html#sqlite3.Cursor.execute
-
-    fetchall : bool (default=False)
+    fetchall : bool (optional)
         Fetch the result of the command, and return it.
-
-    verbose : bool (default=False)
+    verbose : bool (optional)
         Print the command that is run.
 
     Returns
     -------
-    The result of the executed command, if `fetchall=True`.
+    result : list or None
+        The result of the executed command, if `fetchall` is True.
 
     """
 
