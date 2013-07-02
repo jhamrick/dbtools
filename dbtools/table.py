@@ -12,6 +12,37 @@ class Table(object):
     """
 
     @classmethod
+    def list_tables(cls, db, verbose=False):
+        """
+        Get the list of tables present in the database `db`.
+
+        Parameters
+        ----------
+        db : string
+            Path to the SQLite database.
+        verbose : bool (default=False)
+            Print out SQL command information.
+
+        Returns
+        -------
+        tables : list
+            A list of strings corresponding to table names
+
+        """
+
+        # if the database doesn't exist, throw an error
+        if not os.path.exists(db):
+            raise ValueError("no such database: %s" % db)
+
+        # select the names of all tables in the database
+        cmd = "SELECT name FROM sqlite_master WHERE type='table'"
+        result = sql_execute(db, cmd, fetchall=True, verbose=verbose)
+
+        # try to match `name` to one of the table names
+        tables = [table[0] for table in result]
+        return tables
+
+    @classmethod
     def exists(cls, db, name, verbose=False):
         """Check if a table called `name` exists in the database `db`.
 

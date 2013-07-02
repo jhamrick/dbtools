@@ -23,3 +23,13 @@ def test_exists():
     Table.create(DBNAME, "foo", [('id', int)], verbose=True)
     assert Table.exists(DBNAME, 'foo', verbose=True)
     os.remove(DBNAME)
+
+
+def test_list_tables():
+    """Check that the list of tables is correct"""
+    Table.create(DBNAME, "foo", [('id', int)], verbose=True)
+    Table.create(DBNAME, "bar", [('id', int)], verbose=True)
+    tables = Table.list_tables(DBNAME, verbose=True)
+    assert tables == ["foo", "bar"], tables
+    assert Table.exists(DBNAME, 'foo', verbose=True)
+    os.remove(DBNAME)
