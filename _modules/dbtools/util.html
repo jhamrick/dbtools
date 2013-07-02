@@ -56,10 +56,11 @@
 
 
 <div class="viewcode-block" id="dict_to_dtypes"><a class="viewcode-back" href="../../dbtools.util.html#dbtools.util.dict_to_dtypes">[docs]</a><span class="k">def</span> <span class="nf">dict_to_dtypes</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Parses data types from a dictionary or list of dictionaries.</span>
+    <span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">    Parses data types from a dictionary or list of dictionaries.</span>
 
 <span class="sd">    The dictionary keys will be paired with the types of the</span>
-<span class="sd">    corresponding values, e.g.:</span>
+<span class="sd">    corresponding values, e.g.::</span>
 
 <span class="sd">        (key, type(data[key]))</span>
 
@@ -67,13 +68,15 @@
 <span class="sd">    value types should be the same across dictionaries (with the</span>
 <span class="sd">    exception of NoneType).</span>
 
-<span class="sd">    Example:</span>
+<span class="sd">    For example::</span>
 
-<span class="sd">        [{&#39;name&#39;: &#39;apple&#39;, &#39;fruit&#39;: True, &#39;tree&#39;: True},</span>
-<span class="sd">         {&#39;name&#39;: &#39;tomato&#39;, &#39;fruit&#39;: True, &#39;tree&#39;: False},</span>
-<span class="sd">         {&#39;name&#39;: &#39;cucumber&#39;, &#39;fruit&#39;: False, &#39;tree&#39;: False}]</span>
+<span class="sd">        dict_to_dtypes(data=[</span>
+<span class="sd">            {&#39;name&#39;: &#39;apple&#39;, &#39;fruit&#39;: True, &#39;tree&#39;: True},</span>
+<span class="sd">            {&#39;name&#39;: &#39;tomato&#39;, &#39;fruit&#39;: True, &#39;tree&#39;: False},</span>
+<span class="sd">            {&#39;name&#39;: &#39;cucumber&#39;, &#39;fruit&#39;: False, &#39;tree&#39;: False}</span>
+<span class="sd">        ])</span>
 
-<span class="sd">        This will return:</span>
+<span class="sd">    will return::</span>
 
 <span class="sd">        [(&#39;fruit&#39;, bool), (&#39;name&#39;, str), (&#39;tree&#39;, bool)]</span>
 
@@ -82,13 +85,14 @@
 <span class="sd">    data : dictionary or list of dictionaries</span>
 <span class="sd">        Data to extract names and dtypes from.</span>
 
-<span class="sd">    order : list of strings (default=None)</span>
+<span class="sd">    order : list of strings (optional)</span>
 <span class="sd">        The order in which to return the dtypes in, by key. If None, the</span>
 <span class="sd">        dtypes will be sorted alphabetically by key.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    List of 2-tuples, where each tuple has the form (key, dtype)</span>
+<span class="sd">    dtypes : list of 2-tuples</span>
+<span class="sd">        Each tuple in the list has the form (key, dtype)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -125,27 +129,27 @@
 
 </div>
 <div class="viewcode-block" id="sql_execute"><a class="viewcode-back" href="../../dbtools.util.html#dbtools.util.sql_execute">[docs]</a><span class="k">def</span> <span class="nf">sql_execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">fetchall</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Execute a SQL command `cmd` in database `db`.</span>
+    <span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">    Execute a SQL command `cmd` in database `db`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    db : string</span>
 <span class="sd">        Path to the SQLite database.</span>
-
 <span class="sd">    cmd : string or list</span>
-<span class="sd">        Command to be executed -- specifically, parameters to be passed</span>
+<span class="sd">        Command to be executed. Specifically, these are parameters to be passed</span>
 <span class="sd">        to `sqlite3.Cursor.execute`. See:</span>
+
 <span class="sd">        http://docs.python.org/2/library/sqlite3.html#sqlite3.Cursor.execute</span>
-
-<span class="sd">    fetchall : bool (default=False)</span>
+<span class="sd">    fetchall : bool (optional)</span>
 <span class="sd">        Fetch the result of the command, and return it.</span>
-
-<span class="sd">    verbose : bool (default=False)</span>
+<span class="sd">    verbose : bool (optional)</span>
 <span class="sd">        Print the command that is run.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    The result of the executed command, if `fetchall=True`.</span>
+<span class="sd">    result : list or None</span>
+<span class="sd">        The result of the executed command, if `fetchall` is True.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
