@@ -1,6 +1,10 @@
 # dbtools
 A simple interface to SQLite databases.
 
+* [Documentation](http://jhamrick.github.io/dbtools/)
+* [GitHub](https://github.com/jhamrick/dbtools/)
+* [PyPI](https://pypi.python.org/pypi/dbtools)
+
 ## Overview
 
 This module handles simple interfacing with a SQLite database.
