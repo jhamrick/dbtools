@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.03.3
+
+* Include VERSION.txt in pip package
+
 ## Version 0.03.2
 
 * Add sphinx documentation
