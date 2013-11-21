@@ -111,7 +111,7 @@ def sql_execute(db, cmd, fetchall=False, verbose=False):
         cur = conn.cursor()
         # optionally print the command we're running
         if verbose:
-            print ", ".join([str(x) for x in cmd])
+            print(", ".join([str(x) for x in cmd]))
         # run the command
         cur.execute(*cmd)
         # optionally get the result
