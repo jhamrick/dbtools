@@ -5,6 +5,10 @@ import os
 
 from .util import sql_execute, dict_to_dtypes
 
+try:
+    xrange
+except NameError:
+    xrange = range
 
 class Table(object):
 
@@ -166,7 +170,7 @@ class Table(object):
             # coerce data with the data types we just extracted
             data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
             # insert primary key column, if requested
-            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+            if primary_key is not None and primary_key not in list(zip(*dtypes))[0]:
                 dtypes.insert(0, (primary_key, int))
 
         elif hasattr(init, 'keys') or (
@@ -179,7 +183,7 @@ class Table(object):
             data = [[dtype(init[i][col]) for col, dtype in dtypes]
                     for i in xrange(len(init))]
             # insert primary key column, if requested
-            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+            if primary_key is not None and primary_key not in list(zip(*dtypes))[0]:
                 dtypes.insert(0, (primary_key, int))
 
         else:
