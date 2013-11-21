@@ -5,7 +5,7 @@ from nose.tools import raises
 
 from dbtools import Table
 from . import DBNAME, RewriteDocstringMeta
-from table_primary_key import TestTablePrimaryKey
+from .table_primary_key import TestTablePrimaryKey
 
 
 class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
