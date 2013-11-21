@@ -1,10 +1,11 @@
 language: python
 python:
   - "2.7"
+  - "3.2"
 virtualenv:
   system_site_packages: true
 before_install:
-  - sudo apt-get install -qq python-numpy
+  - sudo apt-get install -qq python-numpy python3-numpy
 install:
   - pip install -r requirements.txt --use-mirrors
 script: make test
