@@ -16,6 +16,7 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
         "Programming Language :: SQL",
         "Topic :: Database :: Front-Ends",
         "Topic :: Utilities",
