@@ -3,7 +3,7 @@ import pandas as pd
 import re
 import os
 
-from .util import sql_execute, dict_to_dtypes, int_types, string_types
+from .util import sql_execute, dict_to_dtypes, int_types, string_types, blob_type
 
 try:
     xrange
@@ -200,9 +200,9 @@ class Table(object):
                 sqltype = "INTEGER"
             elif dtype is float:
                 sqltype = "REAL"
-            elif dtype is str or dtype is unicode:
+            elif dtype in string_types:
                 sqltype = "TEXT"
-            elif dtype is buffer:
+            elif dtype is blob_type:
                 sqltype = "BLOB"
             else:
                 raise ValueError("invalid data type: %s" % dtype)

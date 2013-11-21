@@ -5,9 +5,11 @@ import sys
 if sys.version_info[0] >= 3:
     int_types = (int,)
     string_types = (str,)
+    blob_type = bytes
 else:
     int_types = (int, long)
     string_types = (str, unicode)
+    blob_type = buffer
 
 def dict_to_dtypes(data, order=None):
     r"""
