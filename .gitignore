@@ -3,3 +3,5 @@ dist
 MANIFEST
 README
 docs/_build
+*.pyc
+*~

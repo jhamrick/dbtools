@@ -1,5 +1,5 @@
 PYCMD=python setup.py
-GH_PAGES_SOURCES=src docs VERSION.txt README.md Makefile
+GH_PAGES_SOURCES=dbtools docs VERSION.txt README.md Makefile
 
 all:
 	$(PYCMD) bdist
