@@ -7,6 +7,10 @@ from sqlite3 import OperationalError
 from dbtools import Table
 from . import DBNAME, RewriteDocstringMeta
 
+try:
+    xrange
+except NameError:
+    xrange = range
 
 class TestTable(object):
 
@@ -62,7 +66,7 @@ class TestTable(object):
 
     def test_create_columns(self):
         """Check that the columns are named correctly"""
-        assert self.tbl.columns == zip(*self.dtypes)[0]
+        assert self.tbl.columns == list(zip(*self.dtypes))[0]
 
     def test_create_primary_key(self):
         """Check that the primary key is not set"""
@@ -81,7 +85,7 @@ class TestTable(object):
 
     def test_create_from_dicts(self):
         """Create a table from dictionaries"""
-        cols = zip(*self.dtypes)[0]
+        cols = list(zip(*self.dtypes))[0]
         dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
                  for d in self.idata]
 

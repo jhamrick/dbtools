@@ -1,6 +1,15 @@
 import numpy as np
 import sqlite3 as sql
 
+import sys
+if sys.version_info[0] >= 3:
+    int_types = (int,)
+    string_types = (str,)
+    blob_type = bytes
+else:
+    int_types = (int, long)
+    string_types = (str, unicode)
+    blob_type = buffer
 
 def dict_to_dtypes(data, order=None):
     r"""
@@ -101,7 +110,7 @@ def sql_execute(db, cmd, fetchall=False, verbose=False):
     """
 
     # wrap the command in a list, if it isn't one already
-    if not hasattr(cmd, '__iter__'):
+    if isinstance(cmd, string_types):
         cmd = [cmd]
 
     # connect to the database
@@ -111,7 +120,7 @@ def sql_execute(db, cmd, fetchall=False, verbose=False):
         cur = conn.cursor()
         # optionally print the command we're running
         if verbose:
-            print ", ".join([str(x) for x in cmd])
+            print(", ".join([str(x) for x in cmd]))
         # run the command
         cur.execute(*cmd)
         # optionally get the result
