@@ -5,8 +5,12 @@ from nose.tools import raises
 
 from dbtools import Table
 from . import DBNAME, RewriteDocstringMeta
-from table_primary_key import TestTablePrimaryKey
+from .table_primary_key import TestTablePrimaryKey
 
+try:
+    xrange
+except NameError:
+    xrange = range
 
 class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
 
@@ -55,7 +59,7 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
     def test_create_from_dicts(self):
         """Create a table from dictionaries"""
         dtypes = self.dtypes[1:]
-        cols = zip(*dtypes)[0]
+        cols = list(zip(*dtypes))[0]
         dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
                  for d in self.idata]
 

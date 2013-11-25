@@ -3,8 +3,12 @@ import pandas as pd
 import re
 import os
 
-from .util import sql_execute, dict_to_dtypes
+from .util import sql_execute, dict_to_dtypes, int_types, string_types, blob_type
 
+try:
+    xrange
+except NameError:
+    xrange = range
 
 class Table(object):
 
@@ -166,7 +170,7 @@ class Table(object):
             # coerce data with the data types we just extracted
             data = [[dtypes[i][1](x[i]) for i in xrange(len(x))] for x in data]
             # insert primary key column, if requested
-            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+            if primary_key is not None and primary_key not in list(zip(*dtypes))[0]:
                 dtypes.insert(0, (primary_key, int))
 
         elif hasattr(init, 'keys') or (
@@ -179,7 +183,7 @@ class Table(object):
             data = [[dtype(init[i][col]) for col, dtype in dtypes]
                     for i in xrange(len(init))]
             # insert primary key column, if requested
-            if primary_key is not None and primary_key not in zip(*dtypes)[0]:
+            if primary_key is not None and primary_key not in list(zip(*dtypes))[0]:
                 dtypes.insert(0, (primary_key, int))
 
         else:
@@ -192,13 +196,13 @@ class Table(object):
             # parse the python type into a SQL type
             if dtype is None:
                 sqltype = "NULL"
-            elif dtype is int or dtype is long:
+            elif dtype in int_types:
                 sqltype = "INTEGER"
             elif dtype is float:
                 sqltype = "REAL"
-            elif dtype is str or dtype is unicode:
+            elif dtype in string_types:
                 sqltype = "TEXT"
-            elif dtype is buffer:
+            elif dtype is blob_type:
                 sqltype = "BLOB"
             else:
                 raise ValueError("invalid data type: %s" % dtype)
@@ -325,14 +329,14 @@ class Table(object):
 
         # add a selection filter, if specified
         if args is not None:
-            if not hasattr(args, '__iter__'):
+            if isinstance(args, string_types):
                 args = (args, None)
             where_str, where_args = args
             query = " WHERE %s" % where_str
             if where_args is None:
                 out = (query, [])
             else:
-                if not hasattr(where_args, "__iter__"):
+                if isinstance(where_args, string_types) or not hasattr(where_args, '__iter__'):
                     where_args = (where_args,)
                 out = (query, where_args)
         else:
@@ -380,7 +384,7 @@ class Table(object):
             values = {}
         if hasattr(values, 'keys') or not hasattr(values, "__iter__"):
             values = [values]
-        elif not hasattr(values[0], "__iter__"):
+        elif (not hasattr(values[0], "__iter__")) or isinstance(values[0], string_types):
             values = [values]
 
         if not hasattr(values[0], "__iter__"):
@@ -457,7 +461,7 @@ class Table(object):
         if columns is None:
             cols = list(self.columns)
         else:
-            if not hasattr(columns, '__iter__'):
+            if isinstance(columns, string_types):
                 cols = [columns]
             else:
                 cols = list(columns)
