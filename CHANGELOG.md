@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.0
+
+* Add Python 3 support
+
 ## Version 0.03.3
 
 * Include VERSION.txt in pip package
