@@ -4,8 +4,19 @@ python:
   - "3.3"
 virtualenv:
   system_site_packages: true
+
+# Using apt doesn't help for Python 3.3, because the packages on Precise
+# are compiled for 3.2. This uses Miniconda to install numpy & pandas.
+# Cribbed from https://gist.github.com/dan-blanchard/7045057
+
+# Setup anaconda
 before_install:
-  - sudo apt-get install -qq python-numpy
+- if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then wget http://repo.continuum.io/miniconda/Miniconda-2.0.3-Linux-x86_64.sh -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-2.0.3-Linux-x86_64.sh -O miniconda.sh; fi
+- chmod +x miniconda.sh
+- ./miniconda.sh -b
+- export PATH=/home/travis/anaconda/bin:$PATH
+# Install packages
 install:
-  - pip install -r requirements.txt --use-mirrors
-script: make test
+- conda install --yes pip python=$TRAVIS_PYTHON_VERSION numpy nose pandas
+
+script: nosetests
