@@ -429,10 +429,10 @@ class Table(object):
         c = ", ".join(cols)
 
         # perform the insertion
-        for entry in entries:
-            cmd = ("INSERT INTO %s(%s) VALUES (%s)" % (
-                self.name, c, qm), entry)
-            sql_execute(self.db, cmd, verbose=self.verbose)
+        cmd = ("INSERT INTO %s(%s) VALUES (%s)" % (
+            self.name, c, qm))
+        with self.db:
+            self.db.executemany(cmd, entries)
 
     def select(self, columns=None, where=None):
         r"""
