@@ -5,7 +5,7 @@ from nose.tools import raises
 from sqlite3 import OperationalError
 
 from dbtools import Table
-from . import DBNAME, RewriteDocstringMeta
+from . import RewriteDocstringMeta
 
 try:
     xrange
@@ -31,13 +31,8 @@ class TestTable(object):
     ], dtype='object')
 
     def setup(self):
-        if os.path.exists(DBNAME):
-            os.remove(DBNAME)
         self.tbl = Table.create(
-            DBNAME, "Foo", self.dtypes, verbose=True)
-
-    def teardown(self):
-        os.remove(DBNAME)
+            ':memory:', "Foo", self.dtypes, verbose=True)
 
     def insert(self):
         self.tbl.insert(self.idata)
@@ -80,7 +75,7 @@ class TestTable(object):
         """Create a table from a dataframe"""
         self.insert()
         data = self.tbl.select()
-        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True)
+        tbl = Table.create(':memory:', "Foo_2", data, verbose=True)
         self.check(self.idata, tbl.select())
 
     def test_create_from_dicts(self):
@@ -89,7 +84,7 @@ class TestTable(object):
         dicts = [dict([(cols[i], d[i]) for i in xrange(len(d))])
                  for d in self.idata]
 
-        tbl = Table.create(DBNAME, "Bar", dicts, verbose=True)
+        tbl = Table.create(':memory:', "Bar", dicts, verbose=True)
 
         self.check_index(self.idata, tbl.select())
         for idx, col in enumerate(cols):
