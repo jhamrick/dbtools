@@ -1,10 +1,9 @@
 import numpy as np
-import os
 
 from nose.tools import raises
 
 from dbtools import Table
-from . import DBNAME, RewriteDocstringMeta
+from . import RewriteDocstringMeta
 from .table_primary_key import TestTablePrimaryKey
 
 try:
@@ -24,10 +23,8 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
     ], dtype='object')
 
     def setup(self):
-        if os.path.exists(DBNAME):
-            os.remove(DBNAME)
         self.tbl = Table.create(
-            DBNAME, "Foo", self.dtypes,
+            ':memory:', "Foo", self.dtypes,
             primary_key='id', autoincrement=True,
             verbose=True)
 
@@ -52,7 +49,7 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
         self.insert()
         data = self.tbl.select()
         data.index.name = None
-        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True,
+        tbl = Table.create(':memory:', "Foo_2", data, verbose=True,
                            primary_key='id', autoincrement=True)
         self.check(self.idata, tbl.select())
 
@@ -64,7 +61,7 @@ class TestTablePrimaryKeyAutoincrement(TestTablePrimaryKey):
                  for d in self.idata]
 
         tbl = Table.create(
-            DBNAME, "Bar", dicts, verbose=True,
+            ':memory:', "Bar", dicts, verbose=True,
             primary_key='id', autoincrement=True)
 
         self.check_index(self.idata, tbl.select())

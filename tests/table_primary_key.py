@@ -1,10 +1,9 @@
 import numpy as np
-import os
 
 from nose.tools import raises
 
 from dbtools import Table
-from . import DBNAME, RewriteDocstringMeta
+from . import RewriteDocstringMeta
 from .table_base import TestTable
 
 try:
@@ -17,10 +16,8 @@ class TestTablePrimaryKey(TestTable):
     __metaclass__ = RewriteDocstringMeta
 
     def setup(self):
-        if os.path.exists(DBNAME):
-            os.remove(DBNAME)
         self.tbl = Table.create(
-            DBNAME, "Foo", self.dtypes,
+            ':memory:', "Foo", self.dtypes,
             primary_key='id', autoincrement=True,
             verbose=True)
 
@@ -49,7 +46,7 @@ class TestTablePrimaryKey(TestTable):
         self.insert()
         data = self.tbl.select()
         data.index.name = None
-        tbl = Table.create(DBNAME, "Foo_2", data, verbose=True,
+        tbl = Table.create(':memory:', "Foo_2", data, verbose=True,
                            primary_key='id', autoincrement=True)
         self.check(self.idata, tbl.select())
 
@@ -59,7 +56,7 @@ class TestTablePrimaryKey(TestTable):
         self.insert()
         data = self.tbl.select()
         Table.create(
-            DBNAME, "Foo_2", data,
+            ':memory:', "Foo_2", data,
             primary_key='foo', verbose=True)
 
     def test_create_from_dicts(self):
@@ -69,7 +66,7 @@ class TestTablePrimaryKey(TestTable):
                  for d in self.idata]
 
         tbl = Table.create(
-            DBNAME, "Bar", dicts, verbose=True,
+            ':memory:', "Bar", dicts, verbose=True,
             primary_key='id', autoincrement=True)
 
         self.check_index(self.idata, tbl.select())

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import re
 import os
+import sqlite3
 
 from .util import sql_execute, dict_to_dtypes, int_types, string_types, blob_type
 
@@ -19,8 +20,8 @@ class Table(object):
 
         Parameters
         ----------
-        db : string
-            Path to the SQLite database.
+        db : string or sqlite3.Connection
+            Path to the SQLite database, or a connection to the database.
         verbose : bool (optional)
             Print out SQL command information.
 
@@ -31,9 +32,11 @@ class Table(object):
 
         """
 
-        # if the database doesn't exist, throw an error
-        if not os.path.exists(db):
-            raise ValueError("no such database: %s" % db)
+        if isinstance(db, string_types):
+            # if the database doesn't exist, throw an error
+            if not os.path.exists(db):
+                raise ValueError("no such database: %s" % db)
+            db = sqlite3.connect(db)
 
         # select the names of all tables in the database
         cmd = "SELECT name FROM sqlite_master WHERE type='table'"
@@ -50,8 +53,8 @@ class Table(object):
 
         Parameters
         ----------
-        db : string
-            Path to the SQLite database.
+        db : string or sqlite3.Connection
+            Path to the SQLite database, or a connection to the database.
         name : string
             Name of the desired table.
         verbose : bool (optional)
@@ -64,9 +67,11 @@ class Table(object):
 
         """
 
-        # if the database doesn't exist, neither does the table
-        if not os.path.exists(db):
-            return False
+        if isinstance(db, string_types):
+            # if the database doesn't exist, neither does the table
+            if not os.path.exists(db):
+                return False
+            db = sqlite3.connect(db)
 
         # select the names of all tables in the database
         cmd = "SELECT name FROM sqlite_master WHERE type='table'"
@@ -127,8 +132,8 @@ class Table(object):
 
         Parameters
         ----------
-        db : string
-            Path to the SQLite database.
+        db : string or sqlite3.Connection
+            Path to the SQLite database, or a connection to the database.
         name : string
             Name of the desired table.
         init : list, pandas.DataFrame, or dictionary
@@ -220,6 +225,8 @@ class Table(object):
             args.append(arg)
 
         # connect to the database and create the table
+        if isinstance(db, string_types):
+            db = sqlite3.connect(db)
         cmd = "CREATE TABLE %s(%s)" % (name, ', '.join(args))
         sql_execute(db, cmd, verbose=verbose)
 
@@ -239,8 +246,8 @@ class Table(object):
 
         Parameters
         ----------
-        db : (string)
-            The path to the SQLite database.
+        db : string or sqlite3.Connection
+            The path to the SQLite database, or a connection to the database.
         name : (string)
             The name of the table in the database.
         verbose : bool (default=False)
@@ -249,7 +256,9 @@ class Table(object):
         """
 
         # save the parameters
-        self.db = str(db)
+        if isinstance(db, string_types):
+            db = sqlite3.connect(db)
+        self.db = db
         self.name = str(name)
         self.verbose = bool(verbose)
 
@@ -420,10 +429,10 @@ class Table(object):
         c = ", ".join(cols)
 
         # perform the insertion
-        for entry in entries:
-            cmd = ("INSERT INTO %s(%s) VALUES (%s)" % (
-                self.name, c, qm), entry)
-            sql_execute(self.db, cmd, verbose=self.verbose)
+        cmd = ("INSERT INTO %s(%s) VALUES (%s)" % (
+            self.name, c, qm))
+        with self.db:
+            self.db.executemany(cmd, entries)
 
     def select(self, columns=None, where=None):
         r"""

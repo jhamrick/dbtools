@@ -84,14 +84,14 @@ def dict_to_dtypes(data, order=None):
     return types
 
 
-def sql_execute(db, cmd, fetchall=False, verbose=False):
+def sql_execute(conn, cmd, fetchall=False, verbose=False):
     r"""
     Execute a SQL command `cmd` in database `db`.
 
     Parameters
     ----------
-    db : string
-        Path to the SQLite database.
+    conn : sqlite3.Connection
+        Connection to the SQLite database.
     cmd : string or list
         Command to be executed. Specifically, these are parameters to be passed
         to `sqlite3.Cursor.execute`. See:
@@ -113,8 +113,6 @@ def sql_execute(db, cmd, fetchall=False, verbose=False):
     if isinstance(cmd, string_types):
         cmd = [cmd]
 
-    # connect to the database
-    conn = sql.connect(db)
     with conn:
         # get the database cursor
         cur = conn.cursor()
